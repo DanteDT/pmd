@@ -1,0 +1,116 @@
+/* ============================================
+   BASE TEXT
+   ============================================ */
+
+body {
+  font-family: serif;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0 0.8em;
+  text-align: justify;
+}
+
+p {
+  margin: 0 0 1em 0;
+}
+
+/* Headers */
+h1, h2, h3 {
+  text-align: center;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+a {
+  text-decoration: none;
+}
+
+a:link,
+a:visited {
+  color: #0044aa;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   SIDENOTES → INLINE NOTEREFS
+   ============================================ */
+
+/* The clickable marker inside the text */
+.noteref-source {
+  font-weight: bold;
+  color: #aa0000;        /* inline note marker color */
+}
+
+/* ensure spacing before/after marker */
+.noteref-source::before {
+  content: "";
+}
+.noteref-source::after {
+  content: "";
+}
+
+/* ============================================
+   FOOTNOTE CONTAINER (your requested styling)
+   ============================================ */
+
+.class_ch_footers {
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #000;
+  display: block;
+  font-size: 0.83333em;
+  line-height: 1.47724;
+  margin-bottom: 0.2437em;
+  margin-top: 1.99958em;
+  text-align: justify;
+  padding-top: 0.75em;
+}
+
+/* individual footnotes */
+.class_ch_footers aside[epub|type="footnote"] {
+  display: block;
+  margin-bottom: 1em;
+}
+
+/* backlink inside footnote */
+.class_ch_footers aside a.class_footnote {
+  font-weight: bold;
+  text-decoration: none;
+  color: #0044aa;
+}
+
+/* optional hover underline */
+.class_ch_footers aside a.class_footnote:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   CHAPTER SOURCE-LINK STYLE
+   ============================================ */
+
+.class_source {
+  font-weight: bold;
+  color: #aa0000;
+}
+
+/* ============================================
+   MISC / OPTIONAL
+   ============================================ */
+
+/* keep images inside boundaries */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* prevent epub viewers from shrinking headings excessively */
+h1, h2 {
+  font-size: 1.4em;
+}

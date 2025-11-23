@@ -1,0 +1,8 @@
+BUILD/
+chapters_2025-11-22/*
+chapters/*
+META-INF/
+OEBPS/
+venv/
+xhtml_chapters/*
+*.epub
