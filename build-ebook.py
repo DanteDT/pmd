@@ -109,8 +109,7 @@ with open(os.path.join(META_INF, "container.xml"), "w", encoding="utf-8") as f:
 # 6. Create content.opf
 
 book_id = str(uuid.uuid4())
-opf_all=f'''
-<?xml version="1.0" encoding="UTF-8"?>
+opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid_id">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
@@ -135,8 +134,7 @@ with open(os.path.join(OEBPS, "content.opf"), "w", encoding="utf-8") as f:
     f.write(opf_all)
 
 # 7. Create minimal nav.xhtml
-nav_xhtml = f'''
-<?xml version="1.0" encoding="UTF-8"?>
+nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
   <head>
