@@ -117,6 +117,7 @@ opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <dc:title>Moby Dick, Or The Whale</dc:title>
     <dc:creator>Herman Melville</dc:creator>
+    <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
     <dc:identifier id="uuid_id">urn:uuid:{book_id}</dc:identifier>
   </metadata>

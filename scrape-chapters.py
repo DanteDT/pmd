@@ -12,20 +12,31 @@ CHAP_DIR= "chapters"
 CSS_DIR = "css"
 
 # Fresh start
-if os.path.isdir(CHAP_DIR):
-  shutil.rmtree(CHAP_DIR)
-os.makedirs(CHAP_DIR, exist_ok=True)
+# if os.path.isdir(CHAP_DIR):
+#   shutil.rmtree(CHAP_DIR)
+# os.makedirs(CHAP_DIR, exist_ok=True)
 
 # These are corrections to Power Moby HTML, for example in Chapter 35, today
-html_fixes = {
-    """Childe_Harold" s_pilgrimage\'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
-    "<h2>Loomings</h2>": """
-<h2>Loomings</h2>
+html_fixes = {"&eacute;": "é",
+              "&aacute;": "á",
+              "&oacute;": "ó",
+              "&amp;": "&",
+              """Childe_Harold" s_pilgrimage\'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
+              "<h2>Loomings</h2>": """<h2>Loomings</h2>
 <div class="calibre1" id="Title_00005">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
 width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
 <image width="100%" height="100%" 
 xlink:href="images/cover-add-005.jpg"/>
+</svg>
+</div>
+""",
+              "<h1>Epilogue</h1>": """<h1>Epilogue</h1>
+<div class="calibre1" id="Back_00000">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+<image width="100%" height="100%" 
+xlink:href="images/cover-back-000.jpg"/>
 </svg>
 </div>
 """
@@ -345,7 +356,9 @@ def save_chapter(number: int, cleaned_html: str, out_dir=CHAP_DIR):
     filename = f"chapter-{number:03d}.html"
     path = os.path.join(out_dir, filename)
 
+    # Patch original HTML to correct and insert images
     patched_html = cleaned_html
+
     for src, rpl in html_fixes.items():
         patched_html = patched_html.replace(src, rpl)
 
@@ -366,8 +379,8 @@ def scrape_all():
     for number, chapter_url in chapters:
         print(f"Processing chapter {number:03d}: {chapter_url}")
 
-        # if number != 35:
-        #     continue
+        if number != 139:
+            continue
 
         raw_html = fetch_html(chapter_url)
 
