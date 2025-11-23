@@ -148,7 +148,7 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
         {"\n".join([f'        <li><a href="{fname}">Chapter {num}</a></li>' for num, fname in chapters.items()])}
       </ol>
     </nav>
-    <h1>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h1>
+    <h3>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h3>
     <img src="images/PowerMobyDickLogo.jpg"/>
   </body>
 </html>
