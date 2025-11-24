@@ -27,29 +27,15 @@ html_fixes = {"&eacute;": "é",
               "&aacute;": "á",
               "&oacute;": "ó",
               "&amp;": "&",
-
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
+              "<h1>Chapter I</h1>": """<img src="images/cover-add-007-loom.jpg"/><h1>Chapter I</h1>""",
+              """<h1>Epilogue</h1>
+		<h2>&nbsp;</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>Epilogue</h1>
+		<h2>Epilogue</h2>""",
 
-              "<h2>Loomings</h2>": """<div class="calibre1" id="Title_00005">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-width=800 height=1319 viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
-<image width=800 height=1319
-xlink:href="images/cover-add-007-loom.jpg"/>
-</svg>
-</div>
-<h2>Loomings</h2>""",
 
                """<!-- The styling for h2 is hard-coded as a paragraph here,
 		because the h2 style for some reason does not allow sidenotes.  -->""": "",
-
-              "<h1>Epilogue</h1>": """<div class="calibre1" id="Back_00000">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-width=800 height=1319 viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
-<image width=800 height=1319 
-xlink:href="images/cover-back-000-epil.jpg"/>
-</svg>
-</div>
-<h1>Epilogue</h1>""",
 
               """<p style="font: italic normal 1.4em georgia, sans-serif;
 	letter-spacing: 1px; 
@@ -83,12 +69,7 @@ The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollix
 The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany
 ">Heidelburgh Tun</span></p>""":
 """<h2>The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany
-">Heidelburgh Tun</span></h2>""",
-
-               """		<h1>Epilogue</h1>
-		<h2>&nbsp;</h2>""":
-"""<h1>CXXXVI</h1>
-<h2>Epilogue</h2>"""
+">Heidelburgh Tun</span></h2>"""
 }
 
 def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
