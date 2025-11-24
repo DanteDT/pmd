@@ -2,170 +2,151 @@ import os
 import shutil
 import re
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urljoin
+import utils.utilities as utl
+
+logger = utl.init_logger()
 
 BASE_URL = "http://www.powermobydick.com/"
 
-# Folders
-CHAP_DIR= "chapters"
-CSS_DIR = "css"
+# Source Folders
+CHAP_RAW= "chapters_raw"
+
+# New Folders
+CHAP_NEW= "chapters_clean"
+CSS_SRC = "css"
 
 # Fresh start
-# if os.path.isdir(CHAP_DIR):
-#   shutil.rmtree(CHAP_DIR)
-# os.makedirs(CHAP_DIR, exist_ok=True)
+utl.init_dir(CHAP_NEW)
+# DO NOT INITIALIZE CHAP_RAW since it contains original files utl.init_dir(CHAP_RAW)
 
 # These are corrections to Power Moby HTML, for example in Chapter 35, today
+# - Delicate logic, since multiple passes of the patched_html. Get the sequence right. Debug mode is helpful.
 html_fixes = {"&eacute;": "é",
               "&aacute;": "á",
               "&oacute;": "ó",
               "&amp;": "&",
-              """Childe_Harold" s_pilgrimage\'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
-              "<h2>Loomings</h2>": """<h2>Loomings</h2>
-<div class="calibre1" id="Title_00005">
+
+              """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
+
+              "<h2>Loomings</h2>": """<div class="calibre1" id="Title_00005">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-<image width="100%" height="100%" 
-xlink:href="images/cover-add-005.jpg"/>
+width=800 height=1319 viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+<image width=800 height=1319
+xlink:href="images/cover-add-007-loom.jpg"/>
 </svg>
 </div>
-""",
-              "<h1>Epilogue</h1>": """<h1>Epilogue</h1>
-<div class="calibre1" id="Back_00000">
+<h2>Loomings</h2>""",
+
+               """<!-- The styling for h2 is hard-coded as a paragraph here,
+		because the h2 style for some reason does not allow sidenotes.  -->""": "",
+
+              "<h1>Epilogue</h1>": """<div class="calibre1" id="Back_00000">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-<image width="100%" height="100%" 
-xlink:href="images/cover-back-000.jpg"/>
+width=800 height=1319 viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+<image width=800 height=1319 
+xlink:href="images/cover-back-000-epil.jpg"/>
 </svg>
 </div>
-"""
+<h1>Epilogue</h1>""",
+
+              """<p style="font: italic normal 1.4em georgia, sans-serif;
+	letter-spacing: 1px; 
+	margin-top: 5px;
+	margin-bottom: 20px; 
+	color: black;
+	text-align: center">
+
+<span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Queen_Mab'target='_blank'&gt;Queen Mab:&lt;/a&gt; A fairy in English folklore. In Shakespeare's &lt;i&gt;Romeo and Juliet,&lt;/i&gt; she is said to ride a tiny chariot across men's noses as they sleep
+">Queen Mab</span></p>""": 
+"""<h2><span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Queen_Mab' target='_blank'&gt;Queen Mab:&lt;/a&gt; A fairy in English folklore. In Shakespeare's &lt;i&gt;Romeo and Juliet,&lt;/i&gt; she is said to ride a tiny chariot across men's noses as they sleep
+">Queen Mab</span></h2>""",
+
+              """<p style="font: italic normal 1.4em georgia, sans-serif;
+	letter-spacing: 1px; 
+	margin-top: 5px;
+	margin-bottom: 20px; 
+	color: black;
+	text-align: center">
+
+The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></p>""":
+"""<h2>The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></h2>""",
+
+               """<p style="font: italic normal 1.4em georgia, sans-serif;
+	letter-spacing: 1px; 
+	margin-top: 5px;
+	margin-bottom: 20px; 
+	color: black;
+	text-align: center">
+
+The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany
+">Heidelburgh Tun</span></p>""":
+"""<h2>The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany
+">Heidelburgh Tun</span></h2>""",
+
+               """		<h1>Epilogue</h1>
+		<h2>&nbsp;</h2>""":
+"""<h1>CXXXVI</h1>
+<h2>Epilogue</h2>"""
 }
 
-def fetch_html(url: str) -> str:
-    """Fetch raw HTML text from a URL."""
-    resp = requests.get(url)
-    resp.raise_for_status()
-    return resp.text
-
-def extract_chapter_urls(toc_html: str) -> list[tuple[int, str]]:
+def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
     """
-    Parse the TOC page and return a list of (chapter_number, chapter_url).
-    """
-    soup = BeautifulSoup(toc_html, "html.parser")
-    links = soup.find_all("a", href=True)
+    Convert page paragraphs like:
+        <p><...tags...>page 315<.../tags...></p>
+    into uniform page paragraphs:
+        <p><i>1851 page 315</i></p>
 
-    chapters = []
-
-    # chapter pages always follow pattern like Moby001.html, Moby002.html, ...
-    chapter_re = re.compile(r"Moby(\d+)\.html", re.IGNORECASE)
-
-    for link in links:
-        match = chapter_re.search(link["href"])
-        if match:
-            chapter_number = int(match.group(1))
-            chapter_url = urljoin(BASE_URL, link["href"])
-            chapters.append((chapter_number, chapter_url))
-
-    chapters.sort()
-    return chapters
-
-def extract_chapter_content(html: str) -> str:
-    """
-    Slice from first <div id="container"> to the <p style="text-align:right"> navigation block.
-    This is Option C: literal slicing between markers, no DOM matching.
-    """
-    start_marker = '<div id="container"'
-    nav_marker = '<p style="text-align:right">'
-    cpr_marker = '<div id="copyright">'
-
-    start_idx = html.find(start_marker)
-    if start_idx == -1:
-        raise ValueError("No <div id='container'> found in chapter.")
-
-    end_idx = html.find(nav_marker, start_idx)
-    if end_idx == -1:
-        # Possible last chapter with no navigation paragraph
-        # In that case, look for copyright <div> or fall back to end of HTML
-        end_idx = html.find(cpr_marker, start_idx)
-        if end_idx == -1:
-            end_idx = len(html)
-
-    # Slice HTML directly
-    return html[start_idx:end_idx]
-
-def download_url(target_url: str, out_dir=CSS_DIR):
-    css_name = os.path.basename(target_url)
-
-    try:
-        css_text = fetch_html(target_url)
-        css_file = os.path.join(out_dir, css_name)
-        if not os.path.exists(css_file):
-            print(f"Downloading stylesheet: {target_url}")
-            with open(css_file, "w", encoding="utf-8") as f:
-                f.write(css_text)
-    except Exception as e:
-        print(f"Failed to download {target_url}: {e}")
-
-def download_stylesheets(html: str, out_dir=CSS_DIR):
-    """Download all linked CSS files referenced in this HTML snippet.
-       Today, this is the only stylesheet
-        <style type="text/css">
-        @import "http://www.powermobydick.com/MobySidenote.css";
-        </style>       
-    """
-    os.makedirs(out_dir, exist_ok=True)
-
-    soup = BeautifulSoup(html, "html.parser")
-    links = soup.find_all("link", rel="stylesheet")
-
-    for tag in links:
-        href = tag.get("href")
-        if not href:
-            continue
-
-        css_url = urljoin(BASE_URL, href)
-        download_url(css_url, out_dir)
-
-    # There is only 1 text/css import today
-    if not len(links):
-        url_patt = re.compile(r'http\:.+\.css')
-        links = soup.find_all("style", type="text/css")
-
-        for tag in links:
-            href = tag.contents[0]
-            css_url = url_patt.search(href).group(0)
-            download_url(css_url, out_dir)
-
-def convert_page_paragraphs_to_anchors(html_string: str, chapter_number: int) -> str:
-    """
-    Convert paragraphs of the form:
-        <p><i>page 471</i></p>
-    into anchor:
-        <a id="ch_XXX_page_471"></a>
-
-    - chapter_number is zero-padded to 3 digits.
     - Case-insensitive match on 'page'.
-    - Ignores any paragraphs that do not match EXACTLY one italicized page marker.
+    - Ignores other paragraphs
     """
 
     soup = BeautifulSoup(html_string, "html.parser")
-    chapter_id = f"ch_{chapter_number:03d}_page_"
 
-    # Regex: match strings like "page 471", allowing surrounding whitespace
-    page_re = re.compile(r"^\s*page\s+(\d+)\s*$", re.IGNORECASE)
+    for ps in soup.find_all("p"):
+        # get all text inside the paragraph, ignoring any tags
+        text = ps.get_text(strip=True)
 
-    for p in soup.find_all("p"):
-        # Look only for <p> containing exactly one <i> tag
-        if len(p.contents) == 1 and p.contents[0].name == "i":
-            text = p.get_text(strip=True)
-            m = page_re.match(text)
-            if m:
-                page_num = m.group(1)
-                # Replace <p>...</p> with <a id="ch_XXX_page_N"></a>
-                anchor = soup.new_tag("a", id=f"{chapter_id}{page_num}")
-                p.replace_with(anchor)
+        mtc = re.fullmatch(r"page\s+(\d+)", text, flags=re.IGNORECASE)
+        if mtc:
+            page_num = mtc.group(1)
+            ps.clear()
+            new_tag = soup.new_tag("i")
+            new_tag.string = f"1851 page {page_num}"
+            ps.append(new_tag)
 
+    logger.info(f"Converted 1851 page paragraphs for chapter {chapter_num:04d}")
+    return str(soup)
+
+def convert_chapter_headers(html_string: str, chapter_num: int) -> str:
+    """
+    For a nice TOC, convert H1-H2 sequences like
+    <h1>Chapter I</h1> <h2>Loomings</h2>
+    into
+    <h1>I. Loomings</h1> <h2>Loomings</h2>
+    """
+    soup = BeautifulSoup(html_string, "html.parser")
+
+    for h1 in soup.find_all("h1"):
+        # Look for next significant sibling (skip whitespace-only strings)
+        nxt = h1.next_sibling
+        while nxt and isinstance(nxt, NavigableString) and nxt.strip() == "":
+            nxt = nxt.next_sibling
+
+        # Check that it's an H2 (case-insensitive)
+        if nxt and nxt.name and nxt.name.lower() == "h2":
+            text1 = h1.get_text(strip=True).replace("Chapter ", "")
+            text2 = nxt.get_text(strip=True)
+
+            # Build replacement H1
+            new_h1 = soup.new_tag("h1")
+            new_h1["class"] = "combo"
+            new_h1.string = f"{text1}. {text2}"
+
+            h1.replace_with(new_h1)
+
+    logger.info(f"Converted headers for chapter {chapter_num:04d}")
     return str(soup)
 
 def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: int) -> str:
@@ -173,7 +154,7 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
     Unified transformation for:
       1. <a class="sidenote" title="...">text</a>
       2. <span class="sidenote" title="...">text</span>
-      3. <div class="sideNote" id="snNNN"> ...HTML... </div>
+      3. <div class="sidenote" id="snNNN"> ...HTML... </div>
 
     Converts all to:
       - inline noteref anchors using visible text (or auto-label for block sidenotes)
@@ -252,9 +233,9 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
         footnotes.append(aside)
 
     ### ---------------------------------------------------------
-    ### PROCESS BLOCK SIDENOTES (<div class="sideNote">)
+    ### PROCESS BLOCK SIDENOTES (<div class="sidenote">)
     ### ---------------------------------------------------------
-    block_notes = soup.find_all("div", class_="sideNote")
+    block_notes = soup.find_all("div", class_="sidenote")
 
     for div in block_notes:
         # Extract body HTML of the sidenote
@@ -350,51 +331,45 @@ def transform_sidenotes_to_epub(html_string: str, chapter_number: int) -> str:
 
     return str(soup)
 
-def save_chapter(number: int, cleaned_html: str, out_dir=CHAP_DIR):
+def save_chapter(number: int, cleaned_html: str, out_dir=CHAP_NEW):
     """Write cleaned chapter HTML to disk."""
 
     filename = f"chapter-{number:03d}.html"
     path = os.path.join(out_dir, filename)
 
-    # Patch original HTML to correct and insert images
-    patched_html = cleaned_html
-
-    for src, rpl in html_fixes.items():
-        patched_html = patched_html.replace(src, rpl)
-
     with open(path, "w", encoding="utf-8") as f:
-        f.write(patched_html)
+        f.write(cleaned_html)
 
 def scrape_all():
     """Main driver: scrape TOC, loop over chapters, extract slices, save everything."""
-    print("Fetching TOC...")
-    toc_html = fetch_html(BASE_URL)
 
-    chapters = extract_chapter_urls(toc_html)
-    print(f"Found {len(chapters)} chapters.")
-
-    # First page also has the core css stylesheets
-    download_stylesheets(toc_html)
-
-    for number, chapter_url in chapters:
-        print(f"Processing chapter {number:03d}: {chapter_url}")
-
-        if number != 139:
+    for fname in sorted(os.listdir(CHAP_RAW)):
+        if not fname.endswith(".html"):
             continue
 
-        raw_html = fetch_html(chapter_url)
+        number = int(fname.replace("chapter-", "").replace(".html", ""))
+        # For debugging
+        # if number != 31:
+        #     continue
 
-        # Also save any chapter-specific CSS
-        download_stylesheets(raw_html)
+        logger.info(f"Processing chapter {number:03d}: {fname}")
 
-        html = extract_chapter_content(raw_html)
-        html = convert_page_paragraphs_to_anchors(html, number)
+        with open(os.path.join(CHAP_RAW, fname), encoding="utf-8") as fp:
+            raw_html = fp.read()
+
+        # Patch original HTML to correct and insert images
+        patched_html = raw_html
+        for src, rpl in html_fixes.items():
+            patched_html = patched_html.replace(src, rpl)
+
+        html = convert_page_paragraphs(patched_html, number)
+        html = convert_chapter_headers(html, number)
         html = transform_annotations_to_epub_footnotes(html, number)
         html = transform_sidenotes_to_epub(html, number)
 
         save_chapter(number, html)
 
-    print("Done.")
+    logger.info("SUCCESS.")
 
 if __name__ == "__main__":
     scrape_all()

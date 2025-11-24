@@ -1,16 +1,19 @@
 from bs4 import BeautifulSoup
 import os
 import shutil
+import utils.utilities as utl
 
-# Folders
-OUTPUT_DIR = "xhtml_chapters"     # output XHTML
-CHAPTER_DIR = "chapters"          # input cleaned HTML
+# Source Folders
+CHAPTER_DIR = "chapters_clean"    # input cleaned HTML
 CSS_FILES = ["css/mobydick.css"]  # relative paths in EPUB
 
+# New Folders
+OUTPUT_DIR = "chapters_xhtml"     # output XHTML
+
+logger = utl.init_logger()
+
 # Fresh start
-if os.path.isdir(OUTPUT_DIR):
-  shutil.rmtree(OUTPUT_DIR)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+utl.init_dir(OUTPUT_DIR)
 
 def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> str:
     """
@@ -20,9 +23,6 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     - css_files: list of relative CSS filenames to include (optional)
     Returns a string containing valid XHTML.
     """
-
-    chapter_id = f"{chapter_number:03d}"
-    soup = BeautifulSoup(chapter_html, "html.parser")
 
     # Create XHTML skeleton
     xhtml = BeautifulSoup("", "lxml-xml")
@@ -65,8 +65,13 @@ for fname in sorted(os.listdir(CHAPTER_DIR)):
     if not fname.endswith(".html"):
         continue
     chapter_number = int(fname.replace("chapter-", "").replace(".html", ""))
-    with open(os.path.join(CHAPTER_DIR, fname), encoding="utf-8") as f:
-        html = f.read()
+
+    #For debugging
+    # if chapter_number != 31:
+    #     continue
+
+    with open(os.path.join(CHAPTER_DIR, fname), encoding="utf-8") as fp:
+        html = fp.read()
 
     # Wrap in EPUB XHTML
     xhtml = make_epub_xhtml(html, chapter_number, css_files=CSS_FILES)
@@ -75,4 +80,6 @@ for fname in sorted(os.listdir(CHAPTER_DIR)):
     out_fname = f"chapter_{chapter_number:03d}.xhtml"
     with open(os.path.join(OUTPUT_DIR, out_fname), "w", encoding="utf-8") as out_f:
         out_f.write(xhtml)
-    print(f"Saved {out_fname}")
+    logger.info(f"Saved {out_fname}")
+
+logger.info("SUCCESS.")

@@ -8,17 +8,22 @@ import os
 import shutil
 import zipfile
 import uuid
+import utils.utilities as utl
+
+logger = utl.init_logger()
 
 # Folders
-XHTML_DIR = "xhtml_chapters"
-CSS_DIR = "css"
-IMG_DIR = "images"
+IMG_SRC   = "images"
+CSS_SRC   = "css"
+XHTML_DIR = "chapters_xhtml"
 OUTPUT_EPUB = "Moby Dick - Herman Melville.epub"
 
 # EPUB structure
 BUILD = "BUILD"
-OEBPS = f"{BUILD}/OEBPS"
-META_INF = f"{BUILD}/META-INF"
+MET_DIR = os.path.join(BUILD, "META_INF")
+OEB_DIR = os.path.join(BUILD, "OEBPS")
+CSS_DIR = os.path.join(OEB_DIR, "css")
+IMG_DIR = os.path.join(OEB_DIR, "images")
 
 # contents.opf manifest and spine entries
 chapters = {"Cover 1851": "ca-001.xhtml",
@@ -37,10 +42,13 @@ opf_spin = ['<itemref idref="ca-001"/>',
 # 1. Create temp folder structure, fresh start - so remove BUILD target dir
 if os.path.exists(OUTPUT_EPUB):
   os.remove(OUTPUT_EPUB)
-if os.path.isdir(BUILD):
-  shutil.rmtree(BUILD)
-os.makedirs(OEBPS, exist_ok=True)
-os.makedirs(META_INF, exist_ok=True)
+  logger.info(f"Rmoved prior dir {OUTPUT_EPUB}.")
+
+utl.init_dir(BUILD)
+utl.init_dir(MET_DIR)
+utl.init_dir(OEB_DIR)
+utl.init_dir(CSS_DIR)
+utl.init_dir(IMG_DIR)
 
 # 2. Copy XHTML chapter(s) into OEBPS
 for fname in os.listdir(XHTML_DIR):
@@ -49,7 +57,7 @@ for fname in os.listdir(XHTML_DIR):
 
         with open(os.path.join(XHTML_DIR, fname), "r", encoding="utf-8") as f:
             content = f.read()
-        with open(os.path.join(OEBPS, fname), "w", encoding="utf-8") as f:
+        with open(os.path.join(OEB_DIR, fname), "w", encoding="utf-8") as f:
             f.write(content)
 
         # Log manifest and spine for each chapter, for contents.opf
@@ -58,31 +66,29 @@ for fname in os.listdir(XHTML_DIR):
         opf_spin.append(f'    <itemref idref="chapter_{chapter_number:03d}"/>')
 
 # add in the custom back pieces
-shutil.copy(os.path.join("custom", "ca-001.xhtml"), OEBPS)
-shutil.copy(os.path.join("custom", "ca-002.xhtml"), OEBPS)
-shutil.copy(os.path.join("custom", "cz-001.xhtml"), OEBPS)
+shutil.copy(os.path.join("custom", "ca-001.xhtml"), OEB_DIR)
+shutil.copy(os.path.join("custom", "ca-002.xhtml"), OEB_DIR)
+shutil.copy(os.path.join("custom", "cz-001.xhtml"), OEB_DIR)
 
 chapters.update({"Back pages and cover 1851": "cz-001.xhtml"})
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
 
-# 3. Copy CSS
-os.makedirs(os.path.join(OEBPS, "css"), exist_ok=True)
+# 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB BUILD
 cssidx=0
-for fname in os.listdir(CSS_DIR):
+for fname in os.listdir(CSS_SRC):
     if fname.endswith(".css"):
         cssidx+=1
-        with open(os.path.join(CSS_DIR, fname), "r", encoding="utf-8") as f:
+        with open(os.path.join(CSS_SRC, fname), "r", encoding="utf-8") as f:
             css_content = f.read()
-        with open(os.path.join(OEBPS, "css", fname), "w", encoding="utf-8") as f:
+        with open(os.path.join(CSS_DIR, fname), "w", encoding="utf-8") as f:
             f.write(css_content)
         opf_mani.append(f'    <item id="css_{cssidx:03d}" href="css/{fname}" media-type="text/css"/>')
 
 # 3. Copy images, jpg
-os.makedirs(os.path.join(OEBPS, "images"), exist_ok=True)
-for fname in os.listdir(IMG_DIR):
+for fname in os.listdir(IMG_SRC):
     if fname.endswith('.jpg'):
-        shutil.copy(os.path.join(IMG_DIR, fname), os.path.join(OEBPS, "images"))
+        shutil.copy(os.path.join(IMG_SRC, fname), IMG_DIR)
         if fname == "cover-a-001.jpg":
             prop_cover='properties="cover-image"'
         else:
@@ -97,13 +103,13 @@ with open(f"{BUILD}/mimetype", "w", encoding="utf-8") as f:
 container_xml = '''<?xml version="1.0" encoding="UTF-8" ?>
 <container version="1.0"
            xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-   <rootfiles>
-      <rootfile full-path="OEBPS/content.opf"
-                media-type="application/oebps-package+xml"/>
-   </rootfiles>
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf"
+              media-type="application/oebps-package+xml"/>
+  </rootfiles>
 </container>
 '''
-with open(os.path.join(META_INF, "container.xml"), "w", encoding="utf-8") as f:
+with open(os.path.join(MET_DIR, "container.xml"), "w", encoding="utf-8") as f:
     f.write(container_xml)
 
 # 6. Create content.opf
@@ -115,7 +121,7 @@ opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:dcterms="http://purl.org/dc/terms/" 
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>Moby Dick, Or The Whale</dc:title>
+    <dc:title>Moby Dick, Or The Whale [Power]</dc:title>
     <dc:creator>Herman Melville</dc:creator>
     <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
@@ -131,7 +137,7 @@ opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
   </spine>
 </package>
 '''
-with open(os.path.join(OEBPS, "content.opf"), "w", encoding="utf-8") as f:
+with open(os.path.join(OEB_DIR, "content.opf"), "w", encoding="utf-8") as f:
     f.write(opf_all)
 
 # 7. Create minimal nav.xhtml
@@ -150,11 +156,35 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
       </ol>
     </nav>
     <h3>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h3>
-    <img src="images/PowerMobyDickLogo.jpg"/>
+
+    <img src="images/mobydicklightlowres.jpg"/>
+
+    <div class="calibre1" id="Title_00004">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+           width="100%" height="100%" viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%" 
+               xlink:href="images/cover-add-004-toc.jpg"/>
+      </svg>
+    </div>
+    <div class="calibre1" id="Title_00005">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+           width="100%" height="100%" viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%" 
+               xlink:href="images/cover-add-005-toc.jpg"/>
+      </svg>
+    </div>
+    <div class="calibre1" id="Title_00006">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+           width="100%" height="100%" viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%" 
+               xlink:href="images/cover-add-006-md.jpg"/>
+      </svg>
+    </div>
+
   </body>
 </html>
 '''
-with open(os.path.join(OEBPS, "nav.xhtml"), "w", encoding="utf-8") as f:
+with open(os.path.join(OEB_DIR, "nav.xhtml"), "w", encoding="utf-8") as f:
     f.write(nav_xhtml)
 
 # 8. Create EPUB zip
@@ -163,16 +193,17 @@ with zipfile.ZipFile(OUTPUT_EPUB, 'w') as epub:
     epub.write(f"{BUILD}/mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
 
     # Add META-INF folder
-    for root, dirs, files in os.walk(META_INF):
+    for root, dirs, files in os.walk(MET_DIR):
         for file in files:
             epub.write(os.path.join(root, file),
                        os.path.join("META-INF", file))
 
     # Add OEBPS folder
-    for root, dirs, files in os.walk(OEBPS):
+    for root, dirs, files in os.walk(OEB_DIR):
         for file in files:
             full_path = os.path.join(root, file)
-            arc_path = os.path.join("OEBPS", os.path.relpath(full_path, OEBPS))
+            arc_path = os.path.join("OEBPS", os.path.relpath(full_path, OEB_DIR))
             epub.write(full_path, arc_path)
 
-print(f"EPUB created: {OUTPUT_EPUB}")
+logger.info(f"EPUB created: {OUTPUT_EPUB}")
+logger.info("SUCCESS.")

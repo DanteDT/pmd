@@ -1,8 +1,10 @@
+1851_pages/
 BUILD/
-chapters_2025-11-22/*
-chapters/*
+chapters_2025-11-22/
+chapters_*/
 META-INF/
 OEBPS/
 venv/
-xhtml_chapters/*
+*/__pycache__/*
 *.epub
+*.log
