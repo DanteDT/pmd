@@ -8,6 +8,8 @@ import os
 import shutil
 import zipfile
 import uuid
+
+from bs4 import BeautifulSoup
 import utils.utilities as utl
 
 logger = utl.init_logger()
@@ -57,13 +59,21 @@ for fname in os.listdir(XHTML_DIR):
 
         with open(os.path.join(XHTML_DIR, fname), "r", encoding="utf-8") as f:
             content = f.read()
+
+            # get chapters for TOC from H1 title tags
+            soup = BeautifulSoup(content, "html.parser")
+            h1 = soup.find("h1")
+            if h1:
+                h1_text = h1.get_text()
+                chapters[h1_text] = fname
+
         with open(os.path.join(OEB_DIR, fname), "w", encoding="utf-8") as f:
             f.write(content)
 
         # Log manifest and spine for each chapter, for contents.opf
-        chapters.update({f"{chapter_number:03d}":fname})
         opf_mani.append(f'    <item id="chapter_{chapter_number:03d}" href="chapter_{chapter_number:03d}.xhtml" media-type="application/xhtml+xml"/>')
         opf_spin.append(f'    <itemref idref="chapter_{chapter_number:03d}"/>')
+    logger.info(f"Copied chapter {chapter_number:03d} to EPUB build.")
 
 # add in the custom back pieces
 shutil.copy(os.path.join("custom", "ca-001.xhtml"), OEB_DIR)
@@ -152,7 +162,7 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <nav epub:type="toc" id="nav">
       <h1>Table of Contents</h1>
       <ol>
-        {"\n".join([f'        <li><a href="{fname}">Chapter {num}</a></li>' for num, fname in chapters.items()])}
+        {"\n".join([f'        <li><a href="{fname}">{title}</a></li>' for title, fname in chapters.items()])}
       </ol>
     </nav>
     <h3>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h3>

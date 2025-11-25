@@ -30,9 +30,8 @@ html_fixes = {"&eacute;": "é",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
               "<h1>Chapter I</h1>": """<img src="images/cover-add-007-loom.jpg"/><h1>Chapter I</h1>""",
               """<h1>Epilogue</h1>
-		<h2>&nbsp;</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>Epilogue</h1>
+		<h2>&nbsp;</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>Chapter CXXXVI</h1>
 		<h2>Epilogue</h2>""",
-
 
                """<!-- The styling for h2 is hard-coded as a paragraph here,
 		because the h2 style for some reason does not allow sidenotes.  -->""": "",
@@ -106,6 +105,7 @@ def convert_chapter_headers(html_string: str, chapter_num: int) -> str:
     <h1>Chapter I</h1> <h2>Loomings</h2>
     into
     <h1>I. Loomings</h1> <h2>Loomings</h2>
+    compressing whitespace in H1 and H2 text.
     """
     soup = BeautifulSoup(html_string, "html.parser")
 
@@ -117,13 +117,13 @@ def convert_chapter_headers(html_string: str, chapter_num: int) -> str:
 
         # Check that it's an H2 (case-insensitive)
         if nxt and nxt.name and nxt.name.lower() == "h2":
-            text1 = h1.get_text(strip=True).replace("Chapter ", "")
-            text2 = nxt.get_text(strip=True)
+            text1 = h1.get_text(strip=False).replace("Chapter ", "")
+            text2 = nxt.get_text(strip=False)
 
-            # Build replacement H1
+            # Build replacement H1, compressing whitespace
             new_h1 = soup.new_tag("h1")
-            new_h1["class"] = "combo"
-            new_h1.string = f"{text1}. {text2}"
+            new_h1["class"] = "title"
+            new_h1.string = " ".join(f"{text1}. {text2}".split())
 
             h1.replace_with(new_h1)
 

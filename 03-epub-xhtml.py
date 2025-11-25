@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import os
-import shutil
 import utils.utilities as utl
 
 # Source Folders
