@@ -18,6 +18,7 @@ logger = utl.init_logger()
 IMG_SRC   = "images"
 CSS_SRC   = "css"
 XHTML_DIR = "chapters_xhtml"
+CUSTOM_DIR= "custom"
 OUTPUT_EPUB = "Moby Dick - Herman Melville.epub"
 
 # EPUB structure
@@ -76,12 +77,16 @@ for fname in os.listdir(XHTML_DIR):
     logger.info(f"Copied chapter {chapter_number:03d} to EPUB build.")
 
 # add in the custom back pieces
-shutil.copy(os.path.join("custom", "ca-001.xhtml"), OEB_DIR)
-shutil.copy(os.path.join("custom", "ca-002.xhtml"), OEB_DIR)
-shutil.copy(os.path.join("custom", "cz-001.xhtml"), OEB_DIR)
+for fname in os.listdir(CUSTOM_DIR):
+    if fname.endswith('.xhtml'):
+      shutil.copy(os.path.join("custom", fname), OEB_DIR)
+    logger.info(f"Copied custom file {fname} to EPUB build.")
 
-chapters.update({"Back pages and cover 1851": "cz-001.xhtml"})
+chapters.update({"Whaling ship": "image-map.xhtml",
+                 "Back pages and cover 1851": "cz-001.xhtml"})
+opf_mani.append('    <item id="image-map" href="image-map.xhtml" media-type="application/xhtml+xml"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
+opf_spin.append('    <itemref idref="image-map"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
 
 # 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB BUILD

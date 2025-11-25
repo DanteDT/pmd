@@ -128,7 +128,7 @@ def scrape_all():
         logger.info(f"Processing chapter {number:03d}: {chapter_url}")
 
         # For debugging
-        # if number > 5:
+        # if number != 6:
         #     break
 
         # From raw HTML, fetch any CSS stylesheets

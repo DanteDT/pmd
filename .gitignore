@@ -6,5 +6,6 @@ META-INF/
 OEBPS/
 venv/
 */__pycache__/*
+config.yaml
 *.epub
 *.log

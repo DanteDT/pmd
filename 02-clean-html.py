@@ -2,7 +2,7 @@ import os
 import shutil
 import re
 import requests
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup, Comment, NavigableString
 from urllib.parse import urljoin
 import utils.utilities as utl
 
@@ -29,6 +29,10 @@ html_fixes = {"&eacute;": "é",
               "&amp;": "&",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
               "<h1>Chapter I</h1>": """<img src="images/cover-add-007-loom.jpg"/><h1>Chapter I</h1>""",
+
+              """href='http://translate.google.com/translate?hl=en&sl=de&u=http://de.wikipedia.org/wiki/Alexander_Heimb%25C3%25BCrger&ei=IfXUSsb2BY63lAej7OGcCQ&sa=X&oi=translate&resnum=5&ct=result&ved=0CBgQ7gEwBA&prev=/search%3Fq%3D%2522Alexander%2BHeimb%25C3%25BCrger%2522%2B%2522herr%2Balexander%2522%26hl%3Den'""":
+"""href='https://de-wikipedia-org.translate.goog/wiki/Alexander_Heimb%C3%BCrger?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp' """,
+
               """<h1>Epilogue</h1>
 		<h2>&nbsp;</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>Chapter CXXXVI</h1>
 		<h2>Epilogue</h2>""",
@@ -84,6 +88,16 @@ def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
 
     soup = BeautifulSoup(html_string, "html.parser")
 
+    # First remove all OnClick attributes
+    for tag in soup.find_all(attrs={"onclick": True}):
+        del tag["onclick"]
+
+    # Next, delete from html_string all HTML comments containing "dead link"
+    for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+        if "dead link" in comment.lower() or "the confidence man" in comment.lower():
+            comment.extract()     
+
+    # Now convert page paragraphs
     for ps in soup.find_all("p"):
         # get all text inside the paragraph, ignoring any tags
         text = ps.get_text(strip=True)
@@ -330,7 +344,7 @@ def scrape_all():
 
         number = int(fname.replace("chapter-", "").replace(".html", ""))
         # For debugging
-        # if number != 31:
+        # if number != 6:
         #     continue
 
         logger.info(f"Processing chapter {number:03d}: {fname}")
