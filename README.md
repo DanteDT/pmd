@@ -10,7 +10,8 @@ With front/back material from a [scanned, signed first-edition provided by the I
 ### Very brief overview
 1. Scrape PMD TOC and Chapters
 2. Basic HTML clean up, then some deep cleaning and patching to improve the e-reader experience
-3. Build the EPUB
+3. Prep the EPUB content, XHTML chapters
+4. Build the EPUB
 
 ### Contribute
 Suggestions welcome to improve the epub experience, or to further clean up the content.
