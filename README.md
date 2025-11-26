@@ -14,3 +14,5 @@ With front/back material from a [scanned, signed first-edition provided by the I
 
 ### Contribute
 Suggestions welcome to improve the epub experience, or to further clean up the content.
+
+Check the config.yaml, and set `debugging: True` to work on isolated modifications.
