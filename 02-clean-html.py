@@ -75,6 +75,41 @@ The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki
 ">Heidelburgh Tun</span></h2>"""
 }
 
+def basic_html_cleanup(html_string: str, chapter_num: int) -> str:
+    """
+    Basic HTML cleanup:
+      - Remove OnClick attributes
+      - Remove comments containing "dead link" or "the confidence man"
+    """
+    soup = BeautifulSoup(html_string, "html.parser")
+
+    # First remove all OnClick attributes
+    for tag in soup.find_all(attrs={"onclick": True}):
+        del tag["onclick"]
+
+    # Next, delete from html_string all HTML comments containing "dead link"
+    for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+        if "dead link" in comment.lower() or "the confidence man" in comment.lower():
+            comment.extract()
+
+    # Now remove images that are spacer images or 1 pixel height or width
+    for img in soup.find_all("img"):
+        if img.get("src", "").endswith("spacer.gif") or img.get("height") == "1" or img.get("width") == "1":
+            img.decompose()
+
+    # Fix <a name=> to <a id=> throughout
+    for anchor in soup.find_all('a', attrs={'name': True}):
+        anchor['id'] = anchor.get('name')
+        del anchor['name']
+
+    # Finally, make other HTML fixes from html_fixes dict
+    patched_html = str(soup)
+    for src, rpl in html_fixes.items():
+        patched_html = patched_html.replace(src, rpl)
+
+    logger.info(f"Performed basic HTML cleanup for chapter {chapter_num:04d}.")
+    return patched_html
+
 def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
     """
     Convert page paragraphs like:
@@ -87,15 +122,6 @@ def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
     """
 
     soup = BeautifulSoup(html_string, "html.parser")
-
-    # First remove all OnClick attributes
-    for tag in soup.find_all(attrs={"onclick": True}):
-        del tag["onclick"]
-
-    # Next, delete from html_string all HTML comments containing "dead link"
-    for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
-        if "dead link" in comment.lower() or "the confidence man" in comment.lower():
-            comment.extract()     
 
     # Now convert page paragraphs
     for ps in soup.find_all("p"):
@@ -352,15 +378,24 @@ def scrape_all():
         with open(os.path.join(CHAP_RAW, fname), encoding="utf-8") as fp:
             raw_html = fp.read()
 
-        # Patch original HTML to correct and insert images
-        patched_html = raw_html
-        for src, rpl in html_fixes.items():
-            patched_html = patched_html.replace(src, rpl)
-
-        html = convert_page_paragraphs(patched_html, number)
+        html = raw_html
+        html = basic_html_cleanup(html, number)
+        html = convert_page_paragraphs(html, number)
         html = convert_chapter_headers(html, number)
         html = transform_annotations_to_epub_footnotes(html, number)
         html = transform_sidenotes_to_epub(html, number)
+
+        # Compact HTML with html formatter
+        soup = BeautifulSoup(html, "html.parser")   
+
+        if number == 1:
+            # Special fix for Chapter 1: remove duplicate <h1> tags
+            h1_tags = soup.find_all("h1")
+            if len(h1_tags) > 1:
+                for extra_h1 in h1_tags[1:]:
+                    extra_h1.decompose()
+
+        html = soup.prettify()
 
         save_chapter(number, html)
 
