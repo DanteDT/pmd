@@ -63,9 +63,9 @@ as they sleep.">Queen Mab</span></h2>""",
 	color: black;
 	text-align: center">
 
-The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span>.</p>""":
+The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></p>""":
 """<h2>The <span class="sidenote" title="Specksynder: chief harpooner.
-This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></h2>""",
+This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;."> Specksynder</span></h2>""",
 
                """<p style="font: italic normal 1.4em georgia, sans-serif;
 	letter-spacing: 1px; 
@@ -391,7 +391,7 @@ def scrape_all():
         number = int(fname.replace("chapter-", "").replace(".html", ""))
 
         # For debugging specific chapters or ranges
-        if debugging and number != 136:
+        if debugging and number != 33:
             logger.info(f"Skipping chapter {number:03d} in debugging mode.")
             continue
         else:
