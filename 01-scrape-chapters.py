@@ -10,18 +10,25 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import utils.utilities as utl
+import utils.config as config
 
 logger = utl.init_logger()
+config_data = config.load_config()
 
-BASE_URL = "http://www.powermobydick.com/"
+debugging = config_data["exe_mode"]["debugging"]
+BASE_URL = config_data["ext_resource"]["base_url"]
 
 # New Folders
-CHAP_RAW= "chapters_raw"
+CHAP_RAW= "chapters_01_raw"
 CSS_DIR = "css"
 
-# Fresh start
-utl.init_dir(CHAP_RAW)
-# DO NOT INITIALIZE CSS_DIR since it contains original files utl.init_dir(CSS_DIR)
+# Fresh start, unless debugging
+if not debugging:
+    utl.init_dir(CHAP_RAW)
+    utl.init_dir(CSS_DIR)
+    logger.info("Initialized directories for raw chapters and CSS.")
+else:
+    logger.info("Debugging mode: skipping directory initialization.")
 
 def extract_chapter_urls(toc_html: str) -> list[tuple[int, str]]:
     """
@@ -125,15 +132,19 @@ def scrape_all():
     download_stylesheets(toc_html)
 
     for number, chapter_url in chapters:
-        logger.info(f"Processing chapter {number:03d}: {chapter_url}")
 
-        # For debugging
-        # if number != 6:
-        #     break
+        # For debugging specific chapters or ranges of chapters
+        if debugging and number != 31:
+            logger.info(f"Debugging mode: skipping chapter {number}.")
+            continue
+        else:
+            logger.info(f"Processing chapter {number:03d}: {chapter_url}")
 
         # From raw HTML, fetch any CSS stylesheets
         raw_html = utl.fetch_html(chapter_url)
         download_stylesheets(raw_html)
+
+        # Extract chapter content within markers
         html = extract_chapter_content(raw_html)
         save_chapter(number, html)
 

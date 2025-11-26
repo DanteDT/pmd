@@ -1,0 +1,21 @@
+proj_dirs:
+  lib_pages:  "1851_pages"
+  ch_raw:     "chapters_01_raw"
+  ch_clean:   "chapters_02_clean"
+  ch_patched: "chapters_03_patched"
+  ch_xhtml:   "chapters_04_xhtml"
+  css_dir:    "css"
+  custom_dir: "custom"
+  img_dir:    "images"
+epub_dirs:
+  book_dir: "EPUB"
+  meta_dir: "META_INF"
+  oeb_dir:  "OEBPS"
+  css_dir:  "css"
+  img_dir:  "images"
+  epub_book: "Moby Dick - Herman Melville.epub"
+exe_mode:
+  debugging: False
+ext_resource:
+  base_url: "http://www.powermobydick.com/"
+  lib_url:  "https://ia800205.us.archive.org/BookReader/BookReaderImages.php?zip=/32/items/mobydickorwhale01melv/mobydickorwhale01melv_jp2.zip&file=mobydickorwhale01melv_jp2/mobydickorwhale01melv_{image:04d}.jp2&id=mobydickorwhale01melv"

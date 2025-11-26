@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import re
 from pathlib import Path
+import utils.config as config
 
-xhtml_dir = Path(r"chapters_xhtml")
+config_data = config.load_config()
+xhtml_dir = Path(config_data["proj_dirs"]["ch_xhtml"])
 
 pattern_url = re.compile(r'(?:https?|ftps?)://[^"\s\'<>\)]*')
 pattern_oc = re.compile(r'onclick="[^"]*')
@@ -51,11 +53,11 @@ for topic, files in mtx_by_file.items():
         unicnt[topic] += len(filenames)
 
 # Write to log file
-log1_path = Path(r"ext_by_filename.log")
-log2_path = Path(r"ext_by_resource.log")
+log1_path = Path(r"rpt_ext_by_filename.log")
+log2_path = Path(r"rpt_ext_by_resource.log")
 with open(log1_path, 'w', encoding='utf-8') as log:
     log.write(f"External URLs Found in XHTML Files\n")
-    log.write(f"Logged external resources from {fncount} files:\n -  URLs ({counts['URLs']})\n  - OnClick ({counts['OnClick']})\n JavaScript ({counts['JavaScript']}).\n")
+    log.write(f"Logged external resources from {fncount} files:\n -  URLs ({counts['URLs']})\n - OnClick ({counts['OnClick']})\n - JavaScript ({counts['JavaScript']}).\n")
     log.write(f"{'=' * 80}\n\n")
 
     if mtx_by_file:
@@ -79,7 +81,7 @@ with open(log1_path, 'w', encoding='utf-8') as log:
 
 with open(log2_path, 'w', encoding='utf-8') as log:
     log.write(f"External URLs by Resource\n")
-    log.write(f"Logged unique ext resources:\n   - URLs ({unicnt['URLs']})\n   - OnClick ({unicnt['OnClick']})\n  - JavaScript ({unicnt['JavaScript']}).\n")
+    log.write(f"Logged unique ext resources:\n   - URLs ({unicnt['URLs']})\n  - OnClick ({unicnt['OnClick']})\n  - JavaScript ({unicnt['JavaScript']}).\n")
     log.write(f"{'=' * 80}\n\n")
 
     if unique_matches:

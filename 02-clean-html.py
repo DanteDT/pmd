@@ -5,21 +5,29 @@ import requests
 from bs4 import BeautifulSoup, Comment, NavigableString
 from urllib.parse import urljoin
 import utils.utilities as utl
+import utils.config as config
 
 logger = utl.init_logger()
+config_data = config.load_config()
+debugging = config_data["exe_mode"]["debugging"]
 
-BASE_URL = "http://www.powermobydick.com/"
+# Source Folders - DO NOT initialize (remove) these, created in prior step
+CHAP_RAW= config_data["proj_dirs"]["ch_raw"]
 
-# Source Folders
-CHAP_RAW= "chapters_raw"
+# New Folders. 
+# - Clean is minimal cleanup, to test against raw. Patched is full cleanup.
+# - This enables testing that patches do not compromise original content.
+CHAP_CLE= config_data["proj_dirs"]["ch_clean"]
+CHAP_PAT= config_data["proj_dirs"]["ch_patched"]
 
-# New Folders
-CHAP_NEW= "chapters_clean"
-CSS_SRC = "css"
-
-# Fresh start
-utl.init_dir(CHAP_NEW)
-# DO NOT INITIALIZE CHAP_RAW since it contains original files utl.init_dir(CHAP_RAW)
+# Fresh start, unless debugging
+if not debugging:
+    utl.init_dir(CHAP_CLE)
+    utl.init_dir(CHAP_PAT)
+    # DO NOT INITIALIZE CHAP_RAW, created in the PRIOR step
+    logger.info("Initialized directories for clean and patched HTML chapters.")
+else:
+    logger.info("Debugging mode: skipping directory initialization.")
 
 # These are corrections to Power Moby HTML, for example in Chapter 35, today
 # - Delicate logic, since multiple passes of the patched_html. Get the sequence right. Debug mode is helpful.
@@ -29,13 +37,10 @@ html_fixes = {"&eacute;": "é",
               "&amp;": "&",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
               "<h1>Chapter I</h1>": """<img src="images/cover-add-007-loom.jpg"/><h1>Chapter I</h1>""",
+              """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>CXXXVI. Epilogue</h1>""",
 
               """href='http://translate.google.com/translate?hl=en&sl=de&u=http://de.wikipedia.org/wiki/Alexander_Heimb%25C3%25BCrger&ei=IfXUSsb2BY63lAej7OGcCQ&sa=X&oi=translate&resnum=5&ct=result&ved=0CBgQ7gEwBA&prev=/search%3Fq%3D%2522Alexander%2BHeimb%25C3%25BCrger%2522%2B%2522herr%2Balexander%2522%26hl%3Den'""":
 """href='https://de-wikipedia-org.translate.goog/wiki/Alexander_Heimb%C3%BCrger?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp' """,
-
-              """<h1>Epilogue</h1>
-		<h2>&nbsp;</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>Chapter CXXXVI</h1>
-		<h2>Epilogue</h2>""",
 
                """<!-- The styling for h2 is hard-coded as a paragraph here,
 		because the h2 style for some reason does not allow sidenotes.  -->""": "",
@@ -46,11 +51,10 @@ html_fixes = {"&eacute;": "é",
 	margin-bottom: 20px; 
 	color: black;
 	text-align: center">
-
 <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Queen_Mab'target='_blank'&gt;Queen Mab:&lt;/a&gt; A fairy in English folklore. In Shakespeare's &lt;i&gt;Romeo and Juliet,&lt;/i&gt; she is said to ride a tiny chariot across men's noses as they sleep
 ">Queen Mab</span></p>""": 
-"""<h2><span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Queen_Mab' target='_blank'&gt;Queen Mab:&lt;/a&gt; A fairy in English folklore. In Shakespeare's &lt;i&gt;Romeo and Juliet,&lt;/i&gt; she is said to ride a tiny chariot across men's noses as they sleep
-">Queen Mab</span></h2>""",
+"""<h2><span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Queen_Mab'target='_blank'&gt;Queen Mab:&lt;/a&gt; A fairy in English folklore. In Shakespeare's &lt;i&gt;Romeo and Juliet,&lt;/i&gt; she is said to ride a tiny chariot across men's noses
+as they sleep.">Queen Mab</span></h2>""",
 
               """<p style="font: italic normal 1.4em georgia, sans-serif;
 	letter-spacing: 1px; 
@@ -59,8 +63,9 @@ html_fixes = {"&eacute;": "é",
 	color: black;
 	text-align: center">
 
-The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></p>""":
-"""<h2>The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></h2>""",
+The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span>.</p>""":
+"""<h2>The <span class="sidenote" title="Specksynder: chief harpooner.
+This is a bollixed Anglicization of the Dutch term &lt;i&gt;speksnijder&lt;/i&gt;"> Specksynder</span></h2>""",
 
                """<p style="font: italic normal 1.4em georgia, sans-serif;
 	letter-spacing: 1px; 
@@ -71,8 +76,20 @@ The <span class="sidenote" title="Specksynder: chief harpooner. This is a bollix
 
 The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany
 ">Heidelburgh Tun</span></p>""":
-"""<h2>The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany
-">Heidelburgh Tun</span></h2>"""
+"""<h2>The Great <span class="sidenote" title="&lt;a href='http://en.wikipedia.org/wiki/Heidelberg_Tun'target='_blank'&gt;Heidelburgh
+Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, Germany">Heidelburgh Tun</span>.</h2>""",
+
+                "<h2>Sources</h2>": "<h1>Sources</h1>",
+                "<h2>Glossary</h2>": "<h1>Glossary</h1>",
+                "<h2>Blogs</h2>": "<h1>Blogs</h1>",
+                "<h2>Other Press</h2>": "<h1>Other Press</h1>",
+                "<h2>A Note on the Text</h2>": "<h1>A Note on the Text</h1>",
+                "<h2>Resources</h2>": "<h1>Resources</h1>",
+
+                """<h2>Privacy Policy</h2>
+<p>Power Moby-Dick does not collect or use any information about individual visitors to this website, but we do use Google AdSense to serve some of our ads. In order to show you the ads you're most likely to be interested in, Google AdSense may use information about your visits to this and other websites. Google AdSense does not use personal information such as your name, address, email address, or telephone number to choose the ads you see.  If you would like more information about this practice or you would like to opt out of it, visit Google's <a href="http://www.google.com/privacy_ads.html" target="_blank">Privacy Center</a>.""": 
+"""<h1>Privacy Policy</h1>
+<p>Power Moby-Dick does not collect or use any information about individual visitors to this website."""
 }
 
 def basic_html_cleanup(html_string: str, chapter_num: int) -> str:
@@ -80,6 +97,9 @@ def basic_html_cleanup(html_string: str, chapter_num: int) -> str:
     Basic HTML cleanup:
       - Remove OnClick attributes
       - Remove comments containing "dead link" or "the confidence man"
+      - Remove spacer images and 1-pixel images
+      - Fix <a name=> to <a id=>
+      - Apply other HTML fixes from html_fixes dict
     """
     soup = BeautifulSoup(html_string, "html.parser")
 
@@ -115,7 +135,7 @@ def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
     Convert page paragraphs like:
         <p><...tags...>page 315<.../tags...></p>
     into uniform page paragraphs:
-        <p><i>1851 page 315</i></p>
+        <p><i>page 315</i></p>
 
     - Case-insensitive match on 'page'.
     - Ignores other paragraphs
@@ -133,10 +153,10 @@ def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
             page_num = mtc.group(1)
             ps.clear()
             new_tag = soup.new_tag("i")
-            new_tag.string = f"1851 page {page_num}"
+            new_tag.string = f"page {page_num}"
             ps.append(new_tag)
 
-    logger.info(f"Converted 1851 page paragraphs for chapter {chapter_num:04d}")
+    logger.info(f"Converted 1851 page number paragraphs for chapter {chapter_num:04d}")
     return str(soup)
 
 def convert_chapter_headers(html_string: str, chapter_num: int) -> str:
@@ -352,8 +372,8 @@ def transform_sidenotes_to_epub(html_string: str, chapter_number: int) -> str:
 
     return str(soup)
 
-def save_chapter(number: int, cleaned_html: str, out_dir=CHAP_NEW):
-    """Write cleaned chapter HTML to disk."""
+def save_chapter(number: int, cleaned_html: str, out_dir: str=CHAP_PAT) -> None:
+    """Write cleaned chapter HTML to disk. By default to patched dir."""
 
     filename = f"chapter-{number:03d}.html"
     path = os.path.join(out_dir, filename)
@@ -369,17 +389,23 @@ def scrape_all():
             continue
 
         number = int(fname.replace("chapter-", "").replace(".html", ""))
-        # For debugging
-        # if number != 6:
-        #     continue
 
-        logger.info(f"Processing chapter {number:03d}: {fname}")
+        # For debugging specific chapters or ranges
+        if debugging and number != 136:
+            logger.info(f"Skipping chapter {number:03d} in debugging mode.")
+            continue
+        else:
+            logger.info(f"Processing chapter {number:03d}: {fname}")
 
         with open(os.path.join(CHAP_RAW, fname), encoding="utf-8") as fp:
             raw_html = fp.read()
 
         html = raw_html
         html = basic_html_cleanup(html, number)
+
+        # Save minimally cleaned HTML, for comparison with raw and with patched, to test that processes do not degrade content
+        save_chapter(number, html, out_dir=CHAP_CLE)
+
         html = convert_page_paragraphs(html, number)
         html = convert_chapter_headers(html, number)
         html = transform_annotations_to_epub_footnotes(html, number)
@@ -388,16 +414,13 @@ def scrape_all():
         # Compact HTML with html formatter
         soup = BeautifulSoup(html, "html.parser")   
 
-        if number == 1:
-            # Special fix for Chapter 1: remove duplicate <h1> tags
-            h1_tags = soup.find_all("h1")
-            if len(h1_tags) > 1:
-                for extra_h1 in h1_tags[1:]:
-                    extra_h1.decompose()
+        # Remove excessive whitespace for any non-missing text (strings)
+        for element in soup.find_all(string=True):
+            if isinstance(element, NavigableString):
+                cleaned_text = ' '.join(element.string.split())
+                element.replace_with(cleaned_text)
 
-        html = soup.prettify()
-
-        save_chapter(number, html)
+        save_chapter(number, str(soup), out_dir=CHAP_PAT)
 
     logger.info("SUCCESS.")
 

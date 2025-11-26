@@ -11,22 +11,25 @@ import uuid
 
 from bs4 import BeautifulSoup
 import utils.utilities as utl
+import utils.config as config
 
 logger = utl.init_logger()
+config_data = config.load_config()
+debugging = config_data["exe_mode"]["debugging"]
 
 # Folders
-IMG_SRC   = "images"
-CSS_SRC   = "css"
-XHTML_DIR = "chapters_xhtml"
-CUSTOM_DIR= "custom"
-OUTPUT_EPUB = "Moby Dick - Herman Melville.epub"
+IMG_SRC   = config_data["proj_dirs"]["img_dir"]     # source images
+CSS_SRC   = config_data["proj_dirs"]["css_dir"]     # source CSS
+XHTML_SRC = config_data["proj_dirs"]["ch_xhtml"]
+CUSTOM_SRC= config_data["proj_dirs"]["custom_dir"]  # custom front and back matter
 
 # EPUB structure
-BUILD = "BUILD"
-MET_DIR = os.path.join(BUILD, "META_INF")
-OEB_DIR = os.path.join(BUILD, "OEBPS")
-CSS_DIR = os.path.join(OEB_DIR, "css")
-IMG_DIR = os.path.join(OEB_DIR, "images")
+EPUB_BOOK = config_data["epub_dirs"]["epub_book"]
+EPUB_DIR  = config_data["epub_dirs"]["book_dir"]
+MET_DIR   = os.path.join(EPUB_DIR, config_data["epub_dirs"]["meta_dir"])
+OEB_DIR   = os.path.join(EPUB_DIR, config_data["epub_dirs"]["oeb_dir"])
+CSS_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["css_dir"])
+IMG_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["img_dir"])
 
 # contents.opf manifest and spine entries
 chapters = {"Cover 1851": "ca-001.xhtml",
@@ -42,23 +45,23 @@ opf_spin = ['<itemref idref="ca-001"/>',
             '    <itemref idref="nav"/>'
             ]
 
-# 1. Create temp folder structure, fresh start - so remove BUILD target dir
-if os.path.exists(OUTPUT_EPUB):
-  os.remove(OUTPUT_EPUB)
-  logger.info(f"Rmoved prior dir {OUTPUT_EPUB}.")
+# 1. Create temp folder structure, fresh start - so remove EPUB_DIR target dir
+if os.path.exists(EPUB_BOOK):
+  os.remove(EPUB_BOOK)
+  logger.info(f"Rmoved prior dir {EPUB_BOOK}.")
 
-utl.init_dir(BUILD)
+utl.init_dir(EPUB_DIR)
 utl.init_dir(MET_DIR)
 utl.init_dir(OEB_DIR)
 utl.init_dir(CSS_DIR)
 utl.init_dir(IMG_DIR)
 
 # 2. Copy XHTML chapter(s) into OEBPS
-for fname in os.listdir(XHTML_DIR):
+for fname in os.listdir(XHTML_SRC):
     if fname.endswith(".xhtml"):
         chapter_number = int(fname.replace("chapter_", "").replace(".xhtml", ""))
 
-        with open(os.path.join(XHTML_DIR, fname), "r", encoding="utf-8") as f:
+        with open(os.path.join(XHTML_SRC, fname), "r", encoding="utf-8") as f:
             content = f.read()
 
             # get chapters for TOC from H1 title tags
@@ -74,19 +77,19 @@ for fname in os.listdir(XHTML_DIR):
         # Log manifest and spine for each chapter, for contents.opf
         opf_mani.append(f'    <item id="chapter_{chapter_number:03d}" href="chapter_{chapter_number:03d}.xhtml" media-type="application/xhtml+xml"/>')
         opf_spin.append(f'    <itemref idref="chapter_{chapter_number:03d}"/>')
-    logger.info(f"Copied chapter {chapter_number:03d} to EPUB build.")
+    logger.info(f"Copied chapter {chapter_number:03d} to EPUB {OEB_DIR}.")
 
 # add in the custom back pieces
-for fname in os.listdir(CUSTOM_DIR):
+for fname in os.listdir(CUSTOM_SRC):
     if fname.endswith('.xhtml'):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
-    logger.info(f"Copied custom file {fname} to EPUB build.")
+    logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
 chapters.update({"Back pages and cover 1851": "cz-001.xhtml"})
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
 
-# 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB BUILD
+# 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB_DIR
 cssidx=0
 for fname in os.listdir(CSS_SRC):
     if fname.endswith(".css"):
@@ -108,7 +111,7 @@ for fname in os.listdir(IMG_SRC):
         opf_mani.append(f'    <item id="{fname.replace(".jpg", "")}" href="images/{fname}" media-type="image/jpeg" {prop_cover}/>')
 
 # 4. Create mimetype (must be uncompressed)
-with open(f"{BUILD}/mimetype", "w", encoding="utf-8") as f:
+with open(f"{EPUB_DIR}/mimetype", "w", encoding="utf-8") as f:
     f.write("application/epub+zip")
 
 # 5. Create META-INF/container.xml
@@ -200,9 +203,9 @@ with open(os.path.join(OEB_DIR, "nav.xhtml"), "w", encoding="utf-8") as f:
     f.write(nav_xhtml)
 
 # 8. Create EPUB zip
-with zipfile.ZipFile(OUTPUT_EPUB, 'w') as epub:
+with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
     # mimetype must be first and uncompressed
-    epub.write(f"{BUILD}/mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
+    epub.write(f"{EPUB_DIR}/mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
 
     # Add META-INF folder
     for root, dirs, files in os.walk(MET_DIR):
@@ -217,5 +220,5 @@ with zipfile.ZipFile(OUTPUT_EPUB, 'w') as epub:
             arc_path = os.path.join("OEBPS", os.path.relpath(full_path, OEB_DIR))
             epub.write(full_path, arc_path)
 
-logger.info(f"EPUB created: {OUTPUT_EPUB}")
+logger.info(f"EPUB created: {EPUB_BOOK}")
 logger.info("SUCCESS.")

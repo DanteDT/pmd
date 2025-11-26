@@ -1,18 +1,27 @@
 from bs4 import BeautifulSoup
 import os
 import utils.utilities as utl
-
-# Source Folders
-CHAPTER_DIR = "chapters_clean"    # input cleaned HTML
-CSS_FILES = ["css/mobydick.css"]  # relative paths in EPUB
-
-# New Folders
-OUTPUT_DIR = "chapters_xhtml"     # output XHTML
+import utils.config as config
 
 logger = utl.init_logger()
+config_data = config.load_config()
+debugging = config_data["exe_mode"]["debugging"]
 
-# Fresh start
-utl.init_dir(OUTPUT_DIR)
+# Source Folders
+CHAPTER_SRC = config_data["proj_dirs"]["ch_patched"]  # patched HTML chapters
+CSS_SRC     = config_data["proj_dirs"]["css_dir"]         # CSS source dir
+CSS_BOOK    = config_data["epub_dirs"]["css_dir"]     # path for CSS in EPUB
+CSS_FILES   = sorted(os.listdir(CSS_SRC))
+
+# New Folders
+OUTPUT_DIR = config_data["proj_dirs"]["ch_xhtml"]     # output XHTML
+
+# Fresh start, unless debugging
+if not debugging:
+    utl.init_dir(OUTPUT_DIR)
+    logger.info("Initialized directory for EPUB XHTML output.")
+else:
+    logger.info("Debugging mode: skipping directory initialization.")
 
 def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> str:
     """
@@ -45,7 +54,7 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     # Link CSS files if any
     if css_files:
         for css in css_files:
-            link_tag = xhtml.new_tag("link", rel="stylesheet", type="text/css", href=css)
+            link_tag = xhtml.new_tag("link", rel="stylesheet", type="text/css", href='/'.join([CSS_BOOK, css]))
             head_tag.append(link_tag)
 
     # Body
@@ -60,23 +69,26 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     # Return string representation (XHTML)
     return xhtml.prettify()
 
-for fname in sorted(os.listdir(CHAPTER_DIR)):
+for fname in sorted(os.listdir(CHAPTER_SRC)):
     if not fname.endswith(".html"):
         continue
-    chapter_number = int(fname.replace("chapter-", "").replace(".html", ""))
+    number = int(fname.replace("chapter-", "").replace(".html", ""))
 
-    #For debugging
-    # if chapter_number != 31:
-    #     continue
+    # For debugging specific chapters or ranges
+    if debugging and number != 150:
+        logger.info(f"Skipping chapter {number:03d} in debugging mode.")
+        continue
+    else:
+        logger.info(f"Processing chapter {number:03d}: {fname}")
 
-    with open(os.path.join(CHAPTER_DIR, fname), encoding="utf-8") as fp:
+    with open(os.path.join(CHAPTER_SRC, fname), encoding="utf-8") as fp:
         html = fp.read()
 
     # Wrap in EPUB XHTML
-    xhtml = make_epub_xhtml(html, chapter_number, css_files=CSS_FILES)
+    xhtml = make_epub_xhtml(html, number, css_files=CSS_FILES)
 
     # Save
-    out_fname = f"chapter_{chapter_number:03d}.xhtml"
+    out_fname = f"chapter_{number:03d}.xhtml"
     with open(os.path.join(OUTPUT_DIR, out_fname), "w", encoding="utf-8") as out_f:
         out_f.write(xhtml)
     logger.info(f"Saved {out_fname}")
