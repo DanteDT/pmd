@@ -22,3 +22,6 @@ I test on readers that I have used for a long time, without trying harder for mo
 Suggestions welcome to improve the epub experience, and to further clean up the content. Something not work on your reader? Please report it. 
 
 Check the config.yaml, and set `debugging: True` to work on isolated modifications.
+
+With respect and gratitude for Herman and Margaret.
+-- DDT
