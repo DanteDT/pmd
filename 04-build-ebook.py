@@ -163,7 +163,7 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <title>Table of Contents</title>
   </head>
   <body>
-    <img src="images/PowerMobyDickLogo.jpg"/>
+    <a href="http://www.powermobydick.com/"><img src="images/PowerMobyDickLogo.jpg"/></a>
     <nav epub:type="toc" id="nav">
       <h1>Table of Contents</h1>
       <ol>
@@ -172,7 +172,7 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     </nav>
     <h3>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h3>
 
-    <img src="images/mobydicklightlowres.jpg"/>
+    <a href="http://www.powermobydick.com/"><img src="images/mobydicklightlowres.jpg"/></a>
 
     <div class="calibre1" id="Title_00004">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
