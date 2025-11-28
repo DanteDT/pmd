@@ -24,4 +24,5 @@ Suggestions welcome to improve the epub experience, and to further clean up the 
 Check the config.yaml, and set `debugging: True` to work on isolated modifications.
 
 With respect and gratitude for Herman and Margaret. This is what I can offer.
+
 -- DDT
