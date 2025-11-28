@@ -1,6 +1,6 @@
 ## Power literature
 
-Moby-Dick annotated epub, based on the great efforts of [Power Moby-Dick](http://www.powermobydick.com/).
+Moby-Dick annotated epub, based on the great efforts of [Power Moby-Dick, The Online Annotation](http://www.powermobydick.com/).
 * Highly recommended extras to be found there
   * [Glossary](http://www.powermobydick.com/Moby138.html)
   * [Resources](http://www.powermobydick.com/Moby141.html) including the fascinating background on [How Moby-Dick got his name](http://www.powermobydick.com/Moby147.html)
