@@ -5,7 +5,7 @@ Moby-Dick annotated epub, based on the great efforts of [Power Moby-Dick, The On
   * [Glossary](http://www.powermobydick.com/Moby138.html)
   * [Resources](http://www.powermobydick.com/Moby141.html) including the fascinating background on [How Moby-Dick got his name](http://www.powermobydick.com/Moby147.html)
 
-With front/back material from a [scanned, signed first-edition provided by the Internet Archive](https://archive.org/details/mobydickorwhale01melv/page/n7/mode/2up).
+With front/back material from a [scanned, signed first-edition from the Internet Archive](https://archive.org/details/mobydickorwhale01melv/page/n7/mode/2up).
 
 ### Very brief overview
 1. Scrape PMD TOC and Chapters
