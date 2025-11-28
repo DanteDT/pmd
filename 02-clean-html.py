@@ -35,9 +35,36 @@ html_fixes = {"&eacute;": "é",
               "&aacute;": "á",
               "&oacute;": "ó",
               "&amp;": "&",
+              "â": "–",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
-              "<h1>Chapter I</h1>": """<img src="images/cover-add-007-loom.jpg"/><h1>Chapter I</h1>""",
               """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": """<img src="images/cover-back-000-epil.jpg"/><h1>CXXXVI. Epilogue</h1>""",
+
+              """<h1>Moby-Dick </h1>\n<h2>Front Matter</h2>""":
+              """<div class="calibre1" id="front_etymology">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%" 
+               xlink:href="images/cover-add-007-etym.jpg"/>
+      </svg>
+    </div>
+    <div class="calibre1" id="front_extracts">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%" 
+               xlink:href="images/cover-add-008-extr.jpg"/>
+      </svg>
+    </div>
+<h1>Front Matter</h1>\n<h2>Etymology and Extracts</h2>""",
+
+              "<h1>Chapter I</h1>": 
+              """<div class="calibre1" id="chapter_1_looming">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
+           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%" 
+               xlink:href="images/cover-add-009-loom.jpg"/>
+      </svg>
+    </div>
+<h1>Chapter I</h1>""",
 
               """href='http://translate.google.com/translate?hl=en&sl=de&u=http://de.wikipedia.org/wiki/Alexander_Heimb%25C3%25BCrger&ei=IfXUSsb2BY63lAej7OGcCQ&sa=X&oi=translate&resnum=5&ct=result&ved=0CBgQ7gEwBA&prev=/search%3Fq%3D%2522Alexander%2BHeimb%25C3%25BCrger%2522%2B%2522herr%2Balexander%2522%26hl%3Den'""":
 """href='https://de-wikipedia-org.translate.goog/wiki/Alexander_Heimb%C3%BCrger?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp' """,
@@ -85,6 +112,8 @@ Tun:&lt;/a&gt; a vast wine vat in the cellar of the castle in Heidelberg, German
                 "<h2>Other Press</h2>": "<h1>Other Press</h1>",
                 "<h2>A Note on the Text</h2>": "<h1>A Note on the Text</h1>",
                 "<h2>Resources</h2>": "<h1>Resources</h1>",
+
+                """<p style="line-height: 1.3em"><i>Have a question, suggestion, or comment?  Please use the "Contact Us" link at left or email us directly at meg at powermobydick dot com.</i><br/><br/></p>""": """<p style="line-height: 1.3em"><i>Have a question, suggestion, or comment? Please <a href="mailto:meg@powermobydick.com">contact us</a>.</i></p>""",
 
                 """<h2>Privacy Policy</h2>
 <p>Power Moby-Dick does not collect or use any information about individual visitors to this website, but we do use Google AdSense to serve some of our ads. In order to show you the ads you're most likely to be interested in, Google AdSense may use information about your visits to this and other websites. Google AdSense does not use personal information such as your name, address, email address, or telephone number to choose the ads you see.  If you would like more information about this practice or you would like to opt out of it, visit Google's <a href="http://www.google.com/privacy_ads.html" target="_blank">Privacy Center</a>.""": 
@@ -391,7 +420,7 @@ def scrape_all():
         number = int(fname.replace("chapter-", "").replace(".html", ""))
 
         # For debugging specific chapters or ranges
-        if debugging and number != 33:
+        if debugging and number != 141:
             logger.info(f"Skipping chapter {number:03d} in debugging mode.")
             continue
         else:

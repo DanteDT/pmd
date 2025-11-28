@@ -9,7 +9,7 @@ debugging = config_data["exe_mode"]["debugging"]
 
 # Source Folders
 CHAPTER_SRC = config_data["proj_dirs"]["ch_patched"]  # patched HTML chapters
-CSS_SRC     = config_data["proj_dirs"]["css_dir"]         # CSS source dir
+CSS_SRC     = config_data["proj_dirs"]["custom_dir"]  # CSS source for EPUB
 CSS_BOOK    = config_data["epub_dirs"]["css_dir"]     # path for CSS in EPUB
 CSS_FILES   = sorted(os.listdir(CSS_SRC))
 
@@ -54,8 +54,9 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     # Link CSS files if any
     if css_files:
         for css in css_files:
-            link_tag = xhtml.new_tag("link", rel="stylesheet", type="text/css", href='/'.join([CSS_BOOK, css]))
-            head_tag.append(link_tag)
+            if css.endswith(".css"):
+                link_tag = xhtml.new_tag("link", rel="stylesheet", type="text/css", href='/'.join([CSS_BOOK, css]))
+                head_tag.append(link_tag)
 
     # Body
     body_tag = xhtml.new_tag("body")

@@ -19,8 +19,8 @@ debugging = config_data["exe_mode"]["debugging"]
 BASE_URL = config_data["ext_resource"]["base_url"]
 
 # New Folders
-CHAP_RAW= "chapters_01_raw"
-CSS_DIR = "css"
+CHAP_RAW= config_data["proj_dirs"]["ch_raw"]
+CSS_DIR = config_data["proj_dirs"]["css_dir"]
 
 # Fresh start, unless debugging
 if not debugging:
@@ -46,6 +46,8 @@ def extract_chapter_urls(toc_html: str) -> list[tuple[int, str]]:
         match = chapter_re.search(link["href"])
         if match:
             chapter_number = int(match.group(1))
+            if match.group(0) == "Moby0001.html":
+                chapter_number = 0  # fix chapter overloading for Front Matter and Excerpts
             chapter_url = urljoin(BASE_URL, link["href"])
             chapters.append((chapter_number, chapter_url))
 
@@ -134,7 +136,7 @@ def scrape_all():
     for number, chapter_url in chapters:
 
         # For debugging specific chapters or ranges of chapters
-        if debugging and number != 31:
+        if debugging and number > 2:
             logger.info(f"Debugging mode: skipping chapter {number}.")
             continue
         else:

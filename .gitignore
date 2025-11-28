@@ -2,6 +2,7 @@
 1851_pages/
 EPUB/
 chapters_*/
+css/
 extra_pmd/
 venv/
 *.epub

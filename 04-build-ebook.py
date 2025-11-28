@@ -19,7 +19,7 @@ debugging = config_data["exe_mode"]["debugging"]
 
 # Folders
 IMG_SRC   = config_data["proj_dirs"]["img_dir"]     # source images
-CSS_SRC   = config_data["proj_dirs"]["css_dir"]     # source CSS
+CSS_SRC   = config_data["proj_dirs"]["custom_dir"]  # Custom CSS for EPUB
 XHTML_SRC = config_data["proj_dirs"]["ch_xhtml"]
 CUSTOM_SRC= config_data["proj_dirs"]["custom_dir"]  # custom front and back matter
 
@@ -34,14 +34,17 @@ IMG_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["img_dir"])
 # contents.opf manifest and spine entries
 chapters = {"Cover 1851": "ca-001.xhtml",
             "Front pages 1851": "ca-002.xhtml",
+            "Notes from the editor": "ca-003.xhtml",
             "Table of Contents": "nav.xhtml"
             }
 opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml"/>', 
             '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml"/>',
+            '    <item id="ca-003" href="ca-003.xhtml" media-type="application/xhtml+xml"/>',
             '    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>'
             ]
 opf_spin = ['<itemref idref="ca-001"/>', 
             '    <itemref idref="ca-002"/>',
+            '    <itemref idref="ca-003"/>',
             '    <itemref idref="nav"/>'
             ]
 
@@ -136,7 +139,7 @@ opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:dcterms="http://purl.org/dc/terms/" 
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>Moby Dick, Or The Whale [Power]</dc:title>
+    <dc:title>Moby-Dick; Or, The Whale [Power]</dc:title>
     <dc:creator>Herman Melville</dc:creator>
     <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
@@ -176,21 +179,21 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
 
     <div class="calibre1" id="Title_00004">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-           width="100%" height="100%" viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
         <image width="100%" height="100%" 
                xlink:href="images/cover-add-004-toc.jpg"/>
       </svg>
     </div>
     <div class="calibre1" id="Title_00005">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-           width="100%" height="100%" viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
         <image width="100%" height="100%" 
                xlink:href="images/cover-add-005-toc.jpg"/>
       </svg>
     </div>
     <div class="calibre1" id="Title_00006">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-           width="100%" height="100%" viewBox="0 0 800 1319" preserveAspectRatio="xMidYMid meet">
+           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
         <image width="100%" height="100%" 
                xlink:href="images/cover-add-006-md.jpg"/>
       </svg>
