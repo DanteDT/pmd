@@ -88,8 +88,11 @@ for fname in os.listdir(CUSTOM_SRC):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
     logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
+chapters.update({"EPUB license": "license.xhtml"})
 chapters.update({"Back pages and cover 1851": "cz-001.xhtml"})
+opf_mani.append('    <item id="license" href="license.xhtml" media-type="application/xhtml+xml"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
+opf_spin.append('    <itemref idref="license"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
 
 # 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB_DIR
@@ -164,6 +167,7 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
   <head>
     <title>Table of Contents</title>
+    <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
   </head>
   <body>
     <a href="http://www.powermobydick.com/"><img src="images/PowerMobyDickLogo.jpg"/></a>
@@ -178,22 +182,28 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <a href="http://www.powermobydick.com/"><img src="images/mobydicklightlowres.jpg"/></a>
 
     <div class="calibre1" id="Title_00004">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%" 
+      <svg class="embedded_image" 
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
+           version="1.1"
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%"width="1600" height="2638" 
                xlink:href="images/cover-add-004-toc.jpg"/>
       </svg>
     </div>
     <div class="calibre1" id="Title_00005">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+      <svg class="embedded_image" 
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
+           version="1.1"
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
         <image width="100%" height="100%" 
                xlink:href="images/cover-add-005-toc.jpg"/>
       </svg>
     </div>
     <div class="calibre1" id="Title_00006">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops" version="1.1" 
-           width="100%" height="100%" viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+      <svg class="embedded_image" 
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
+           version="1.1"
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
         <image width="100%" height="100%" 
                xlink:href="images/cover-add-006-md.jpg"/>
       </svg>
