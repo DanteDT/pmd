@@ -40,21 +40,21 @@ html_fixes = {"&eacute;": "é",
 
               """<h1>Moby-Dick </h1>\n<h2>Front Matter</h2>""":
               """    <div class="calibre1" id="Page_Etymology">
-      <svg class="embedded_image" 
+      <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
-           viewBox="0 0 1768 2840" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%" 
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%"
                xlink:href="images/cover-add-007-etym.jpg"/>
       </svg>
     </div>
 
     <div class="calibre1" id="Page_Extracts">
-      <svg class="embedded_image" 
+      <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
-           viewBox="0 0 1768 2840" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%" 
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%"
                xlink:href="images/cover-add-008-extr.jpg"/>
       </svg>
     </div>
@@ -65,18 +65,18 @@ html_fixes = {"&eacute;": "é",
       <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
-           viewBox="0 0 1768 2840" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%" 
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
+        <image width="100%" height="100%"
                xlink:href="images/cover-add-009-loom.jpg"/>
       </svg>
     </div>
 <h1>Chapter I</h1>""",
 
               """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": """    <div class="calibre1" id="Page_Epilogue">
-      <svg class="embedded_image" 
+      <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
-           viewBox="0 0 1768 2840" preserveAspectRatio="xMidYMid meet">
+           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
         <image width="100%" height="100%"
                xlink:href="images/cover-back-000-epil.jpg"/>
       </svg>

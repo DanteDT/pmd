@@ -182,29 +182,29 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <a href="http://www.powermobydick.com/"><img src="images/mobydicklightlowres.jpg"/></a>
 
     <div class="calibre1" id="Title_00004">
-      <svg class="embedded_image" 
+      <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
            viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"width="1600" height="2638" 
+        <image width="100%" height="100%"
                xlink:href="images/cover-add-004-toc.jpg"/>
       </svg>
     </div>
     <div class="calibre1" id="Title_00005">
-      <svg class="embedded_image" 
+      <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
            viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%" 
+        <image width="100%" height="100%"
                xlink:href="images/cover-add-005-toc.jpg"/>
       </svg>
     </div>
     <div class="calibre1" id="Title_00006">
-      <svg class="embedded_image" 
+      <svg class="embedded_image"
            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
            version="1.1"
            viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%" 
+        <image width="100%" height="100%"
                xlink:href="images/cover-add-006-md.jpg"/>
       </svg>
     </div>
