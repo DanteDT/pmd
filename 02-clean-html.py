@@ -39,48 +39,24 @@ html_fixes = {"&eacute;": "é",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
 
               """<h1>Moby-Dick </h1>\n<h2>Front Matter</h2>""":
-              """    <div class="calibre1" id="Page_Etymology">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-add-007-etym.jpg"/>
-      </svg>
-    </div>
-
-    <div class="calibre1" id="Page_Extracts">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-add-008-extr.jpg"/>
-      </svg>
-    </div>
+              """   <div id="Page_Etymology">
+     <img class="full_page_image" src="images/cover-add-007-etym.jpg"/>
+   </div>
+   <div id="Page_Extracts">
+     <img class="full_page_image" src="images/cover-add-008-extr.jpg"/>
+   </div>
 <h1>Front Matter</h1>\n<h2>Etymology and Extracts</h2>""",
 
               "<h1>Chapter I</h1>": 
-              """    <div class="calibre1" id="Page_Loomings">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-add-009-loom.jpg"/>
-      </svg>
-    </div>
+              """   <div id="Page_Loomings">
+     <img class="full_page_image" src="images/cover-add-009-loom.jpg"/>
+   </div>
 <h1>Chapter I</h1>""",
 
-              """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": """    <div class="calibre1" id="Page_Epilogue">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-back-000-epil.jpg"/>
-      </svg>
-    </div>
+              """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": 
+              """   <div id="Page_Epilogue">
+     <img class="full_page_image" src="images/cover-back-000-epil.jpg"/>
+   </div>
 <h1>CXXXVI. Epilogue</h1>""",
 
               """href='http://translate.google.com/translate?hl=en&sl=de&u=http://de.wikipedia.org/wiki/Alexander_Heimb%25C3%25BCrger&ei=IfXUSsb2BY63lAej7OGcCQ&sa=X&oi=translate&resnum=5&ct=result&ved=0CBgQ7gEwBA&prev=/search%3Fq%3D%2522Alexander%2BHeimb%25C3%25BCrger%2522%2B%2522herr%2Balexander%2522%26hl%3Den'""":

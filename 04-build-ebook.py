@@ -170,43 +170,29 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
   </head>
   <body>
-    <a href="http://www.powermobydick.com/"><img src="images/PowerMobyDickLogo.jpg"/></a>
+    <a href="http://www.powermobydick.com/">
+      <img class="full_page_image" src="images/PowerMobyDickLogo.jpg"/>
+    </a>
     <nav epub:type="toc" id="nav">
       <h1>Table of Contents</h1>
       <ol>
         {"\n".join([f'        <li><a href="{fname}">{title}</a></li>' for title, fname in chapters.items()])}
       </ol>
     </nav>
-    <h3>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h3>
+    <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
 
-    <a href="http://www.powermobydick.com/"><img src="images/mobydicklightlowres.jpg"/></a>
+    <a href="http://www.powermobydick.com/">
+      <img class="full_page_image" src="images/mobydicklightlowres.jpg"/>
+    </a>
 
-    <div class="calibre1" id="Title_00004">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-add-004-toc.jpg"/>
-      </svg>
+    <div id="Title_00004">
+      <img class="full_page_image" src="images/cover-add-004-toc.jpg"/>
     </div>
-    <div class="calibre1" id="Title_00005">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-add-005-toc.jpg"/>
-      </svg>
+    <div id="Title_00005">
+      <img class="full_page_image" src="images/cover-add-005-toc.jpg"/>
     </div>
-    <div class="calibre1" id="Title_00006">
-      <svg class="embedded_image"
-           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:epub="http://www.idpf.org/2007/ops"
-           version="1.1"
-           viewBox="0 0 1600 2638" preserveAspectRatio="xMidYMid meet">
-        <image width="100%" height="100%"
-               xlink:href="images/cover-add-006-md.jpg"/>
-      </svg>
+    <div id="Title_00006">
+      <img class="full_page_image" src="images/cover-add-006-md.jpg"/>
     </div>
 
   </body>

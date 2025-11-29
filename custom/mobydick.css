@@ -116,12 +116,13 @@ h1, h2 {
 }
 
 /* SVG embedded images full-page, when added to chapters with re-flowed text and noterefs */
-.embedded_image {
-  width: 100%;
-  height: 100vh;   /* or: min-height: 100vh */
+.full_page_image {
   display: block;
+  float:   none;
+  height:  100%;   /* too many readers do not support min-/max- */
+  margin:  auto;
 }
-.embedded_image svg {
+.full_page_image svg {
   height: 100%;
-  width: 100%;
+  margin: auto;
 }
