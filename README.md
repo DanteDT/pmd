@@ -28,7 +28,7 @@ My preferred android reader, [Lithium epub reader](https://play.google.com/store
 
 Few e-readers support "noteref" pop-up notes. If your e-reader does not support "noteref" notes, you may prefer the "footnote" EPUB. Although then you may not get popup notes like:
 
-<img src="extra_pmd/noteref-popup.png" height="125px">
+<img src="web/noteref-popup.jpg" height="125px">
 
 ### Contribute
 Suggestions welcome to improve the epub experience, and to further clean up the content. Something not work on your reader? Please report it. 
