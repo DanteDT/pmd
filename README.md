@@ -16,7 +16,19 @@ With front/back material from a [scanned, signed first-edition from the Internet
 I test on readers that I have used for a long time, without trying harder for more common devices or apps : )
 * Android tablet, with the reliable [Lithium epub reader](https://play.google.com/store/apps/details?id=com.faultexception.reader&hl=en-US).
 * iPhone, with the spectacular [Readdle Documents](https://readdle.com/documents).
-* Kobo Libra Color
+* Kobo Libra Color. Later versions no longer support popup noterefs. See below.
+
+### Why two .epub files? What's the difference?
+
+Unfortunately, e-readers support notes in different ways.
+
+My preferred android reader, [Lithium epub reader](https://play.google.com/store/apps/details?id=com.faultexception.reader&hl=en-US) handles
+* "noteref" notes as pop-up text, which is a great reading experience, and
+* "footnote" notes as links to chapter footnotes, which forces the reader to jump around the chapter - a sub-optimal reading experience.
+
+Few e-readers support "noteref" pop-up notes. If your e-reader does not support "noteref" notes, you may prefer the "footnote" EPUB. Although then you may not get popup notes like:
+
+<img src="extra_pmd/noteref-popup.png" height="125px">
 
 ### Contribute
 Suggestions welcome to improve the epub experience, and to further clean up the content. Something not work on your reader? Please report it. 

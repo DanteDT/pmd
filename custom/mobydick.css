@@ -92,6 +92,13 @@ a:hover {
 .class_ch_footers aside[epub|type="footnote"] {
   display: block;
   margin-bottom: 1em;
+  border: 1px solid #0044aa;
+}
+
+.class_ch_footers aside[epub|type="noteref"] {
+  display: block;
+  margin-bottom: 1em;
+  border: 1px solid #0044aa;
 }
 
 /* backlink inside footnote */
