@@ -16,6 +16,14 @@ import utils.config as config
 logger = utl.init_logger()
 config_data = config.load_config()
 debugging = config_data["exe_mode"]["debugging"]
+epub_ref = config_data["exe_mode"]["epub_ref"]
+
+# Create separate EPUB for Footnote and NoteRef footnotes
+# - since unfortunately e-readers can't agree
+if epub_ref == "noteref":
+    epub_ref = " ".join([",", epub_ref])
+else:
+    epub_ref = ""
 
 # Folders
 IMG_SRC   = config_data["proj_dirs"]["img_dir"]     # source images
@@ -24,7 +32,7 @@ XHTML_SRC = config_data["proj_dirs"]["ch_xhtml"]
 CUSTOM_SRC= config_data["proj_dirs"]["custom_dir"]  # custom front and back matter
 
 # EPUB structure
-EPUB_BOOK = config_data["epub_dirs"]["epub_book"]
+EPUB_BOOK = config_data["epub_dirs"]["epub_book"].format(epub_ref)
 EPUB_DIR  = config_data["epub_dirs"]["book_dir"]
 MET_DIR   = os.path.join(EPUB_DIR, config_data["epub_dirs"]["meta_dir"])
 OEB_DIR   = os.path.join(EPUB_DIR, config_data["epub_dirs"]["oeb_dir"])
@@ -32,11 +40,11 @@ CSS_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["css_dir"])
 IMG_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["img_dir"])
 
 # contents.opf manifest and spine entries
-chapters = {"Cover 1851": "ca-001.xhtml",
-            "Front pages 1851": "ca-002.xhtml",
-            "Notes from the editor": "ca-003.xhtml",
-            "Table of Contents": "nav.xhtml"
-            }
+chapters = [f'        <li><a href="ca-001.xhtml">Cover 1851</a></li>',
+            f'        <li><a href="ca-002.xhtml">Front pages 1851</a></li>',
+            f'        <li><a href="ca-003.xhtml">Notes from the editor</a></li>',
+            f'        <li><a href="nav.xhtml">Table of Contents</a></li>'
+           ]
 opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml"/>', 
             '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml"/>',
             '    <item id="ca-003" href="ca-003.xhtml" media-type="application/xhtml+xml"/>',
@@ -61,18 +69,73 @@ utl.init_dir(IMG_DIR)
 
 # 2. Copy XHTML chapter(s) into OEBPS
 for fname in os.listdir(XHTML_SRC):
+    '''
+    Copy each chapter_xxx.xhtml into OEBPS, and build TOC entries from H1 Title and H2 Subtitle tags.
+    - Rules for TOC entries:
+      - Remove any leading "CHAPTER " from H1, UPPERCASED during previous cleaning
+      - If only H1 title, TOC entry is H1-text (without the leading "CHAPTER ")
+      - If exactly one H2 subtitle, collapse to one entry, H1-text. - H2-text.
+      - Otherwise nest sibling H2 subtitles as ordered list within H1 title entry
+    - Title Case for H2 text, only (leave H1 as-is)
+    - Add each chapter to manifest and spine in contents.opf
+    '''
     if fname.endswith(".xhtml"):
         chapter_number = int(fname.replace("chapter_", "").replace(".xhtml", ""))
+
+        # For debugging
+        if debugging and chapter_number != 139:
+            continue
 
         with open(os.path.join(XHTML_SRC, fname), "r", encoding="utf-8") as f:
             content = f.read()
 
-            # get chapters for TOC from H1 title tags
+            # For back-reference to header IDs in chapters
+            ttlcnt  = 0
+            sttlcnt = 0
+
             soup = BeautifulSoup(content, "html.parser")
-            h1 = soup.find("h1")
-            if h1:
-                h1_text = h1.get_text()
-                chapters[h1_text] = fname
+            h1_tags = soup.find_all("h1")
+
+            # Build a TOC entry for every H1 title
+            toc_entry = ""
+            for h1_tag in h1_tags:
+                ttl = h1_tag.get_text().replace("CHAPTER ", "").strip()
+                ttlcnt += 1
+
+                extra_br = ""
+                if ttlcnt > 1:
+                    extra_br = "\n"
+
+                h2_tags = h1_tag.find_next_siblings("h2")
+
+                if not h2_tags:
+                    # No Subtitles, only the Chapter entry for this chapter
+                    toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a></li>'
+                    logger.info(f'Created Title-only TOC entry for {fname}.')
+                else:
+                    len_h2_tags = len(h2_tags)
+
+                    if len_h2_tags == 1:
+                        sttlcnt += 1
+                        subtitle = h2_tags[0].get_text().strip().title()
+                        # Only one Subtitle, collapse as suffix to Title
+                        if subtitle:
+                            toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl} - {subtitle}</a></li>'
+                        else:
+                            toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a></li>'
+                        logger.info(f'Created Title - Subtitle TOC entry for {fname}.')
+                    else:
+                        # Multiple Subtitle sections. Nest the subtitles within the EPUB TOC Title entry
+                        toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a><ol class="nav-toc">'
+                        for h2_tag in h2_tags:
+                            sttlcnt += 1
+                            subtitle = h2_tag.get_text().strip().title()
+                            if subtitle:
+                                toc_entry += f'\n            <li><a href="{fname}#subtitle_{sttlcnt:03d}">{subtitle}</a></li>'
+                        toc_entry += '\n        </ol></li>'
+                        logger.info(f'Created Title TOC with nested Subtitle entry for {fname}.')
+
+        chapters.append(toc_entry)
 
         with open(os.path.join(OEB_DIR, fname), "w", encoding="utf-8") as f:
             f.write(content)
@@ -88,8 +151,8 @@ for fname in os.listdir(CUSTOM_SRC):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
     logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
-chapters.update({"EPUB license": "license.xhtml"})
-chapters.update({"Back pages and cover 1851": "cz-001.xhtml"})
+chapters.append(f'        <li><a href="license.xhtml">EPUB license</a></li>')
+chapters.append(f'        <li><a href="cz-001.xhtml">Back pages and cover 1851</a></li>')
 opf_mani.append('    <item id="license" href="license.xhtml" media-type="application/xhtml+xml"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
 opf_spin.append('    <itemref idref="license"/>')
@@ -142,7 +205,7 @@ opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:dcterms="http://purl.org/dc/terms/" 
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>Moby-Dick; Or, The Whale [Power]</dc:title>
+    <dc:title title-type="main">Moby-Dick; Or, The Whale [Power{epub_ref}]</dc:title>
     <dc:creator>Herman Melville</dc:creator>
     <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
@@ -171,18 +234,18 @@ nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
   </head>
   <body>
     <a href="http://www.powermobydick.com/">
-      <img class="full_page_image" src="images/PowerMobyDickLogo.jpg"/>
+      <img width="100%" src="images/PowerMobyDickLogo.jpg"/>
     </a>
     <nav epub:type="toc" id="nav">
       <h1>Table of Contents</h1>
-      <ol>
-        {"\n".join([f'        <li><a href="{fname}">{title}</a></li>' for title, fname in chapters.items()])}
+      <ol class="nav-toc">
+        {"\n".join([entry for entry in chapters])}
       </ol>
     </nav>
     <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
 
     <a href="http://www.powermobydick.com/">
-      <img class="full_page_image" src="images/mobydicklightlowres.jpg"/>
+      <img width="100%" src="images/mobydicklightlowres.jpg"/>
     </a>
 
     <div id="Title_00004">

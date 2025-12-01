@@ -10,6 +10,7 @@ import utils.config as config
 logger = utl.init_logger()
 config_data = config.load_config()
 debugging = config_data["exe_mode"]["debugging"]
+epub_ref = config_data["exe_mode"]["epub_ref"]
 
 # Source Folders - DO NOT initialize (remove) these, created in prior step
 CHAP_RAW= config_data["proj_dirs"]["ch_raw"]
@@ -35,29 +36,36 @@ html_fixes = {"&eacute;": "é",
               "&aacute;": "á",
               "&oacute;": "ó",
               "&amp;": "&",
-              "â": "–",
+              "Å": "ō",
+              "Å«": "ū",  # Honshū
+              "â": "-", # en-dash
+              "–": "-",   # en-dash
+              "—": "-",   # em-dash
+              "burtonsâa": "burtons - a",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
 
               """<h1>Moby-Dick </h1>\n<h2>Front Matter</h2>""":
-              """   <div id="Page_Etymology">
+              """<h1>Front Matter</h1>\n<h2>Etymology and Extracts</h2>
+   <div id="Page_Etymology">
      <img class="full_page_image" src="images/cover-add-007-etym.jpg"/>
    </div>
    <div id="Page_Extracts">
      <img class="full_page_image" src="images/cover-add-008-extr.jpg"/>
    </div>
-<h1>Front Matter</h1>\n<h2>Etymology and Extracts</h2>""",
 
-              "<h1>Chapter I</h1>": 
-              """   <div id="Page_Loomings">
+""",
+
+              "<h1>Chapter I</h1>\n<h2>Loomings</h2>": 
+              """<h1>Chapter I</h1>\n<h2>Loomings</h2>
+   <div id="Page_Loomings">
      <img class="full_page_image" src="images/cover-add-009-loom.jpg"/>
-   </div>
-<h1>Chapter I</h1>""",
+   </div>""",
 
               """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": 
-              """   <div id="Page_Epilogue">
+              """<h1>CXXXVI. Epilogue</h1>\n<h2> </h2>
+   <div id="Page_Epilogue">
      <img class="full_page_image" src="images/cover-back-000-epil.jpg"/>
-   </div>
-<h1>CXXXVI. Epilogue</h1>""",
+   </div>""",
 
               """href='http://translate.google.com/translate?hl=en&sl=de&u=http://de.wikipedia.org/wiki/Alexander_Heimb%25C3%25BCrger&ei=IfXUSsb2BY63lAej7OGcCQ&sa=X&oi=translate&resnum=5&ct=result&ved=0CBgQ7gEwBA&prev=/search%3Fq%3D%2522Alexander%2BHeimb%25C3%25BCrger%2522%2B%2522herr%2Balexander%2522%26hl%3Den'""":
 """href='https://de-wikipedia-org.translate.goog/wiki/Alexander_Heimb%C3%BCrger?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp' """,
@@ -140,6 +148,7 @@ def basic_html_cleanup(html_string: str, chapter_num: int) -> str:
             img.decompose()
 
     # Fix <a name=> to <a id=> throughout
+    # Consider Global Attrib https://www.w3schools.com/tags/att_id.asp vs. specialized https://www.w3schools.com/tags/att_name.asp
     for anchor in soup.find_all('a', attrs={'name': True}):
         anchor['id'] = anchor.get('name')
         del anchor['name']
@@ -183,31 +192,33 @@ def convert_page_paragraphs(html_string: str, chapter_num: int) -> str:
 
 def convert_chapter_headers(html_string: str, chapter_num: int) -> str:
     """
-    For a nice TOC, convert H1-H2 sequences like
-    <h1>Chapter I</h1> <h2>Loomings</h2>
-    into
-    <h1>I. Loomings</h1> <h2>Loomings</h2>
-    compressing whitespace in H1 and H2 text.
+    Check git tag 2.2 for prior formatting of chapter headers.
+    Updated: format headers as they appear in 1851 edition (uppercase, smaller font for subtitle).
+    Update all H1 and H2 tags to later add to custom nav.xhtml
+    - force tag text to UPPERCASE
+    - force each to end with period.
+    - set class to match CSS styles, title and subtitle
     """
     soup = BeautifulSoup(html_string, "html.parser")
+    ttlcnt = 0
+    sttlcnt = 0
 
-    for h1 in soup.find_all("h1"):
-        # Look for next significant sibling (skip whitespace-only strings)
-        nxt = h1.next_sibling
-        while nxt and isinstance(nxt, NavigableString) and nxt.strip() == "":
-            nxt = nxt.next_sibling
+    for h_tag in soup.find_all(re.compile("^h[12]$")):
+        txt = h_tag.get_text(strip=True).upper()
+        if txt and not txt.endswith("."):
+            txt += "."
 
-        # Check that it's an H2 (case-insensitive)
-        if nxt and nxt.name and nxt.name.lower() == "h2":
-            text1 = h1.get_text(strip=False).replace("Chapter ", "")
-            text2 = nxt.get_text(strip=False)
-
-            # Build replacement H1, compressing whitespace
-            new_h1 = soup.new_tag("h1")
-            new_h1["class"] = "title"
-            new_h1.string = " ".join(f"{text1}. {text2}".split())
-
-            h1.replace_with(new_h1)
+        new_txt = soup.new_tag(h_tag.name)
+        if h_tag.name.lower() == "h1":
+            ttlcnt += 1
+            new_txt["id"] = f"title_{ttlcnt:03d}"
+            new_txt["class"] = "title"
+        else:
+            sttlcnt += 1
+            new_txt["id"] = f"subtitle_{sttlcnt:03d}"
+            new_txt["class"] = "subtitle"
+        new_txt.string = " ".join(f"{txt}".split())
+        h_tag.replace_with(new_txt)
 
     logger.info(f"Converted headers for chapter {chapter_num:04d}")
     return str(soup)
@@ -219,9 +230,9 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
       2. <span class="sidenote" title="...">text</span>
       3. <div class="sidenote" id="snNNN"> ...HTML... </div>
 
-    Converts all to:
-      - inline noteref anchors using visible text (or auto-label for block sidenotes)
-      - <aside epub:type="footnote"><p>...</p></aside> entries
+    Converts all to EPUB type footnotes, for footnote and noteref readers, which do not agree
+      - inline footnote anchors using visible text (or auto-label for block sidenotes)
+      - <aside epub:type=f"{epub_ref}"><p>...</p></aside> entries
       - A single footer container per chapter.
     """
 
@@ -269,7 +280,7 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
             "a",
             id=src_id,
             href=f"chapter_{chapter_str}.xhtml#{ref_id}",
-            **{"epub:type": "noteref", "class": "class_source"}
+            **{"epub:type": f"{epub_ref}", "class": "class_source"}
         )
         src_anchor.string = visible_text
 
@@ -277,7 +288,7 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
         tag.replace_with(src_anchor)
 
         # Build footnote aside
-        aside = soup.new_tag("aside", id=ref_id, **{"epub:type": "footnote"})
+        aside = soup.new_tag("aside", id=ref_id, **{"epub:type": f"{epub_ref}"})
         p = soup.new_tag("p")
 
         # backlink
@@ -297,48 +308,49 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
 
     ### ---------------------------------------------------------
     ### PROCESS BLOCK SIDENOTES (<div class="sidenote">)
+    ### Note: does not occur in current Power Moby content
     ### ---------------------------------------------------------
-    block_notes = soup.find_all("div", class_="sidenote")
+    # block_notes = soup.find_all("div", class_="sidenote")
 
-    for div in block_notes:
-        # Extract body HTML of the sidenote
-        content_nodes = list(div.contents)
+    # for div in block_notes:
+    #     # Extract body HTML of the sidenote
+    #     content_nodes = list(div.contents)
 
-        # Create new IDs
-        src_id, ref_id = new_ids()
+    #     # Create new IDs
+    #     src_id, ref_id = new_ids()
 
-        # Auto-generate visible marker — could be superscript number, or "[note]"
-        visible_marker = str(fn_counter - 1)
+    #     # Auto-generate visible marker — could be superscript number, or "[note]"
+    #     visible_marker = str(fn_counter - 1)
 
-        inline_anchor = soup.new_tag(
-            "a",
-            id=src_id,
-            href=f"chapter_{chapter_str}.xhtml#{ref_id}",
-            **{"epub:type": "noteref", "class": "class_source"}
-        )
-        inline_anchor.string = visible_marker
+    #     inline_anchor = soup.new_tag(
+    #         "a",
+    #         id=src_id,
+    #         href=f"chapter_{chapter_str}.xhtml#{ref_id}",
+    #         **{"epub:type": f"{epub_ref}", "class": "class_source"}
+    #     )
+    #     inline_anchor.string = visible_marker
 
-        # Insert inline marker where the block note was
-        div.replace_with(inline_anchor)
+    #     # Insert inline marker where the block note was
+    #     div.replace_with(inline_anchor)
 
-        # Build footnote
-        aside = soup.new_tag("aside", id=ref_id, **{"epub:type": "footnote"})
-        p = soup.new_tag("p")
+    #     # Build footnote
+    #     aside = soup.new_tag("aside", id=ref_id, **{"epub:type": f"{epub_ref}"})
+    #     p = soup.new_tag("p")
 
-        backlink = soup.new_tag(
-            "a",
-            href=f"chapter_{chapter_str}.xhtml#{src_id}",
-            **{"class": "class_footnote"}
-        )
-        backlink.string = "↩"
-        p.append(backlink)
+    #     backlink = soup.new_tag(
+    #         "a",
+    #         href=f"chapter_{chapter_str}.xhtml#{src_id}",
+    #         **{"class": "class_footnote"}
+    #     )
+    #     backlink.string = "↩"
+    #     p.append(backlink)
 
-        # Append original block HTML content
-        for node in content_nodes:
-            p.append(node)
+    #     # Append original block HTML content
+    #     for node in content_nodes:
+    #         p.append(node)
 
-        aside.append(p)
-        footnotes.append(aside)
+    #     aside.append(p)
+    #     footnotes.append(aside)
 
     ### ---------------------------------------------------------
     ### FOOTNOTE CONTAINER
@@ -381,12 +393,12 @@ def transform_sidenotes_to_epub(html_string: str, chapter_number: int) -> str:
         fn_ref_id = f"{chapter_prefix}_fnref_{fn_counter}"
 
         # Create inline footnote reference
-        a_tag = soup.new_tag("a", href=f"#{fn_id}", id=fn_ref_id, **{"epub:type": "noteref"})
+        a_tag = soup.new_tag("a", href=f"#{fn_id}", id=fn_ref_id, **{"epub:type": f"{epub_ref}"})
         a_tag.string = span.get_text(strip=True)
         span.replace_with(a_tag)
 
         # Create aside footnote
-        aside = soup.new_tag("aside", id=fn_id, **{"epub:type": "footnote"})
+        aside = soup.new_tag("aside", id=fn_id, **{"epub:type": f"{epub_ref}"})
         aside.append(BeautifulSoup(note_text, "html.parser"))
         # Append to end of body
         body = soup.body or soup

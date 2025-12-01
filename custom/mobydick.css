@@ -21,6 +21,21 @@ h1, h2, h3 {
   margin-bottom: 0.5em;
 }
 
+/* Chapter titles and subtitles */
+h1.title {
+  font-size: 1.5em;
+}
+h2.subtitle {
+  font-size: 0.9em;
+  margin-top: 0;
+}
+
+ol.nav-toc {
+  list-style-type: none; /* Remove bullets */
+  padding: 0; /* Remove padding */
+  margin-left: 2em; /* Remove margins */
+}
+
 /* ============================================
    LINKS
    ============================================ */

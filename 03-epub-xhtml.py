@@ -46,9 +46,18 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     head_tag = xhtml.new_tag("head")
     html_tag.append(head_tag)
 
-    # Title
+    # Title from H1 and H2, title and subtitle classes added in cleaning step
+    chapter_soup = BeautifulSoup(chapter_html, "html.parser")
+    h1 = chapter_soup.find("h1", class_="title")
+    h2 = chapter_soup.find("h2", class_="subtitle")
+
     title_tag = xhtml.new_tag("title")
-    title_tag.string = f"Chapter {chapter_number}"
+    if h1 and h2:
+        title_tag.string = f"{h1.get_text(strip=True)} {h2.get_text(strip=True)}"
+    elif h1:
+        title_tag.string = f"{h1.get_text(strip=True)}"
+    else:
+        title_tag.string = f"Chapter {chapter_number}"
     head_tag.append(title_tag)
 
     # Link CSS files if any

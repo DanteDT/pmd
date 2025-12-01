@@ -13,9 +13,10 @@ epub_dirs:
   oeb_dir:  "OEBPS"
   css_dir:  "css"
   img_dir:  "images"
-  epub_book: "Moby-Dick, Or The Whale [Power] - Herman Melville.epub"
+  epub_book: "Moby-Dick, Or The Whale [Power{}] - Herman Melville.epub"
 exe_mode:
   debugging: False
+  epub_ref: "noteref"    # footnote or noteref. Unfortunately, noterefs pop-up in some readers, footnotes pops-up in others.
 ext_resource:
   base_url: "http://www.powermobydick.com/"
   lib_url:  "https://ia800205.us.archive.org/BookReader/BookReaderImages.php?zip=/32/items/mobydickorwhale01melv/mobydickorwhale01melv_jp2.zip&file=mobydickorwhale01melv_jp2/mobydickorwhale01melv_{image:04d}.jp2&id=mobydickorwhale01melv"
