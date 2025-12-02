@@ -1,4 +1,4 @@
-## *Conformant* Popup notes work on these files
+## *Conformant* popup notes work on these files
 
 The (X)HTML syntax *works* and *is conform* to a known standard like [EPUB 3.3](https://www.w3.org/TR/epub-33/).
 
