@@ -32,7 +32,7 @@ Few e-readers support "noteref" pop-up notes. If your e-reader does not support 
 
 If you can demonstrate WORKING, or WORKING/CONFORMANT syntax for device- and software-agnostic EPUB syntax, please consider donating contributing them to:
 * [working](popup-notes/working) ... if popups work on your OS and software, one way or another, or
-* [conformant](popup-notes/conformant) ... if they work and are **conformant** to a recognized standard.
+* [conformant](popup-notes/conformant) ... if popups work and syntax **conforms** to a recognized standard.
 * *no copyrighted content, please. just working syntax like the others*
 
 ### Contribute
