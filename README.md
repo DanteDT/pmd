@@ -24,8 +24,8 @@ I test on readers that I have used for a long time, without trying harder for mo
 Unfortunately, e-readers support notes in different ways.
 
 My preferred Windows and Android readers, above, handle
-* "noteref" notes as pop-up text, which is a great reading experience, and
-* "footnote" notes as links to chapter footnotes, which forces the reader to jump around the chapter - a sub-optimal reading experience.
+* [noteref](https://www.w3.org/TR/epub-ssv-11/#links) notes as pop-up text, which is a great reading experience, and
+* [footnote](https://www.w3.org/TR/epub-ssv-11/#notes) notes as links to chapter footnotes, which forces the reader to jump around the chapter - a sub-optimal reading experience.
 
 Few e-readers support "noteref" popup notes. If your e-reader does not support "noteref" notes, you may prefer the "footnote" EPUB. Although then you may not get popup notes like:
 
