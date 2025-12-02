@@ -15,7 +15,7 @@ The filename indicates `OS-Software <, OS-Software>*` that pops up footnotes cor
 * AND, Android
 * IOS, iOS
 
-For example, [Working-popup-note+-+WIN-Calibre+AND-Lithium.epub](./Working-popup-note+-+WIN-Calibre+AND-Lithium.epub) pops up notes correctly although the syntax may not conform to a published spec. Work-arounds can best disfunctional conformance. Just don't rely on them to heavily :)
+For example, [Working-popup-note+-+WIN-Calibre+AND-Lithium.epub](./Working-popup-note+-+WIN-Calibre+AND-Lithium.epub) pops up notes correctly although the syntax may not conform to a published spec. Work-arounds can best disfunctional conformance. Just don't rely on them to heavily : )
 * Windows 11, using Calibre 8
   * `WIN-Calibre` in the filename
   * `<dc:subject>Windows 11, Calibre 8</dc:subject>` in the content.opf
