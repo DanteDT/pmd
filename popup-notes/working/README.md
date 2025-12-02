@@ -2,7 +2,7 @@
 
 The (X)HTML syntax *works* but may *not conform* to any known standard like [EPUB 3.3](https://www.w3.org/TR/epub-33/).
 
-If it works, and conforms to a published spec, the file belongs in [conformant](../conformant)
+If it works *and* conforms to a published spec, the file belongs in [conformant](../conformant)
 
 ### Naming convention
 
