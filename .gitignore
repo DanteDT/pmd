@@ -5,8 +5,12 @@ chapters_*/
 css/
 extra_pmd/
 venv/
+refactor*
+*.csv
 *.epub
 *.log
+build_ebook.cmd
+
 
 # GitHub Python.gitignore template follows (modified to suit project)
 # Byte-compiled / optimized / DLL files
