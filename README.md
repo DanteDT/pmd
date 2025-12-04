@@ -21,53 +21,25 @@ I test on epub readers that I have used for a long time, without trying harder f
 
 ### Why two .epub files? What's the difference?
 
-Unfortunately, e-pub devices and readers support notes in different ways (or not):
-* as popup [footnotes](https://www.w3.org/TR/epub-ssv-11/#notes), which is a great reading experience, or 
-* as **hyperlinks** to non-linear content.
-  * Links force the reader to jump around the content - a disruptive, sub-optimal reading experience.
-  * Some publishers use hyperlinks; some e-readers treat footnotes as hyperlinks.
-  * Both choose to deliver a disruptive, sub-optimal reading experience.
+Unfortunately, e-pub devices and readers support TOC Navigation, and Footnotes in different ways (or not).
 
-Apparently, few e-readers support popup footnotes. My preferred Windows and Android readers, above, do. If your e-reader does not support popups, you may have better luck with the "hyperlink" EPUB. You won't get popups like:
+To keep this overview minimal, I address technical topics in:
+* [TOC navigation](navigation.md), and
+* [Footnotes](footnotes.md)
 
-  * <img src="web/noteref-popup.jpg" height="125px">
+Due to unreliable support for these two essential e-book features by device manufacturers and app developers, your e-reader may work better with
+* the **footnote** release (popup footnotes 😃), or
+* the **hyperlink** release (functional yet disruptive links back-and-forth between main text and footnotes 😒)
 
-If you can demonstrate WORKING, or WORKING/CONFORMANT popup notes for a particular scenario, please consider submitting that. See examples in:
-* [working](popup-notes/working) ... popups work, although syntax may not conform to any spec, and
-* [conformant](popup-notes/conformant) ... popups work, and syntax **conforms** to a recognized standard.
-* *no copyrighted content, please. just simple examples of working syntax, like the ones in those folders.*
-
-### Key points from EPUB standards
-A few key points from [EPUB 3.3](https://www.w3.org/TR/epub-ssv-11/)
-* [skippability and escapability matter](https://www.w3.org/TR/epub-33/#sec-behaviors-skip-escape) and may confuse since, distinct from skippable, escapable items are those "that users might wish to skip" ... 
-  * Wait, whaaa... ?!
-* Nonetheless, footnotes are skippable. And popups are the best experience to ensure readers don't want to skip them.
-* So footnotes matter and are detailed in [EPUB 3 Structural Semantics Vocabulary 1.1, footnotes](https://www.w3.org/TR/epub-ssv-11/#notes) and [noterefs](https://www.w3.org/TR/epub-ssv-11/#links)
-  * epub:type="noteref" belongs in HTML `<a>` tags "in the main body of text."
-  * epub:type="footnote" belongs in HTML `<aside>` tags to provide the reader "ancillary information ... that provides additional context" to that main text.
-
-The simplest case for popup notes seems pretty simple:
-```
-<div id="text">
-    <a id="txt01" epub:type="noteref" href="#fn01">
-        Main body of text
-    </a>
-    without the interesting, skippable bits.
-</div>
-...
-<div id="footnotes">
-    <aside epub:type="footnote" id="fn01">
-        <a href="#txt01">back ↩</a>
-        Skippable details and
-        <a href="http://wikipedia.com">more on Wikipedia</a>
-    </aside>
-</div>
-```
-
-Why is this hard to get right for devices and apps? I don't know. People get [hard stuff right](https://home.cern/news/news/accelerators/hie-isolde-10-years-10-highlights) all the time.
+Why is it so hard for device manufacturers and app developers to get this right? I don't know. People get [hard stuff right](https://home.cern/news/news/accelerators/hie-isolde-10-years-10-highlights) all the time.
 
 ### Contribute
 Suggestions are welcome to improve the annotated Moby-Dick reading experience. Something not work on your e-reader? Please report it.
+
+If you can demonstrate WORKING, or WORKING/CONFORMANT Popup Footnotes or TOC Navigation for a particular scenario, please consider submitting that. See examples in:
+* [working](popup-notes/working) ... popups work, although syntax may not conform to any spec, and
+* [conformant](popup-notes/conformant) ... popups work, and syntax **conforms** to a recognized standard.
+* *no copyrighted content, please. just simple examples of working syntax, like the ones in those folders.*
 
 To customize your own edition, consider the [config.yaml](config.yaml) setting `debugging: True` to focus a debugging session. The setting `epub_ref: "foot"` produces the Footnote editions; `epub_ref: "link"` produces the hyperlink edition.
 
