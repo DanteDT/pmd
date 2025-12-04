@@ -3,7 +3,7 @@
 Moby-Dick annotated epub, based on the great efforts of [Power Moby-Dick, The Online Annotation](http://www.powermobydick.com/).
 * Highly recommended extras to be found there
   * [Glossary](http://www.powermobydick.com/Moby138.html)
-  * [Resources](http://www.powermobydick.com/Moby141.html) including the fascinating background on [How Moby-Dick got his name](http://www.powermobydick.com/Moby147.html)
+  * [Resources](http://www.powermobydick.com/Moby141.html) including diagrams of whaleships and the surprising background of [How Moby-Dick got his name](http://www.powermobydick.com/Moby147.html)
 
 With front/back material from a [scanned, signed first-edition from the Internet Archive](https://archive.org/details/mobydickorwhale01melv/page/n7/mode/2up).
 
@@ -11,7 +11,7 @@ With front/back material from a [scanned, signed first-edition from the Internet
 1. Scrape PMD TOC and Chapters
 2. Basic HTML clean up, then some deep cleaning and patching to improve the e-reader experience
 3. Prep the EPUB content, XHTML chapters
-4. Build the EPUB
+4. Build the EPUB - an edition that uses epub footnotes, and an edition that uses hyperlinks. See below.
 
 I test on epub readers that I have used for a long time, without trying harder for more common devices or apps :
 * Windows 11, [Calibre epub reader, validator and builder](https://calibre-ebook.com/) ❤️
@@ -32,10 +32,10 @@ Apparently, few e-readers support popup footnotes. My preferred Windows and Andr
 
   * <img src="web/noteref-popup.jpg" height="125px">
 
-If you can demonstrate WORKING, or WORKING/CONFORMANT popup notes for a particular scenario, please consider contributing submitting that. See templates in:
-* [working](popup-notes/working) ... popups work, although syntax may not conform to spec, and
+If you can demonstrate WORKING, or WORKING/CONFORMANT popup notes for a particular scenario, please consider submitting that. See examples in:
+* [working](popup-notes/working) ... popups work, although syntax may not conform to any spec, and
 * [conformant](popup-notes/conformant) ... popups work, and syntax **conforms** to a recognized standard.
-* *no copyrighted content, please. just simple examples of working syntax.*
+* *no copyrighted content, please. just simple examples of working syntax, like the ones in those folders.*
 
 ### Key points from EPUB standards
 A few key points from [EPUB 3.3](https://www.w3.org/TR/epub-ssv-11/)
@@ -46,7 +46,7 @@ A few key points from [EPUB 3.3](https://www.w3.org/TR/epub-ssv-11/)
   * epub:type="noteref" belongs in HTML `<a>` tags "in the main body of text."
   * epub:type="footnote" belongs in HTML `<aside>` tags to provide the reader "ancillary information ... that provides additional context" to that main text.
 
-The simplest case for popup text notes seems pretty simple:
+The simplest case for popup notes seems pretty simple:
 ```
 <div id="text">
     <a id="txt01" epub:type="noteref" href="#fn01">
@@ -58,8 +58,8 @@ The simplest case for popup text notes seems pretty simple:
 <div id="footnotes">
     <aside epub:type="footnote" id="fn01">
         <a href="#txt01">back ↩</a>
-        See external info 
-        <a href="http://wikipedia.com">on Wikipedia</a>
+        Skippable details and
+        <a href="http://wikipedia.com">more on Wikipedia</a>
     </aside>
 </div>
 ```
@@ -67,9 +67,9 @@ The simplest case for popup text notes seems pretty simple:
 Why is this hard to get right for devices and apps? I don't know. People get [hard stuff right](https://home.cern/news/news/accelerators/hie-isolde-10-years-10-highlights) all the time.
 
 ### Contribute
-Suggestions welcome to improve the annotated Moby-Dick epub experience. Something not work on your reader? Please report it.
+Suggestions are welcome to improve the annotated Moby-Dick reading experience. Something not work on your e-reader? Please report it.
 
-To customize your own edition, consider the [config.yaml](config.yaml) setting `debugging: True` to focus a debugging session.
+To customize your own edition, consider the [config.yaml](config.yaml) setting `debugging: True` to focus a debugging session. The setting `epub_ref: "foot"` produces the Footnote editions; `epub_ref: "link"` produces the hyperlink edition.
 
 With respect and gratitude for Herman and Margaret. ❤️
 

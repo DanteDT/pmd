@@ -40,10 +40,10 @@ CSS_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["css_dir"])
 IMG_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["img_dir"])
 
 # contents.opf manifest and spine entries
-chapters = ['<li><a href="{}ca-001.xhtml">Cover 1851</a></li>',
-            '        <li><a href="{}ca-002.xhtml">Front pages 1851</a></li>',
-            '        <li><a href="{}ca-003.xhtml">Notes from the editor</a></li>',
-            '        <li><a href="{}toc.xhtml">Table of Contents</a></li>'
+chapters = ['<li><a href="ca-001.xhtml">Cover 1851</a></li>',
+            '        <li><a href="ca-002.xhtml">Front pages 1851</a></li>',
+            '        <li><a href="ca-003.xhtml">Notes from the editor</a></li>',
+            '        <li><a href="toc.xhtml">Table of Contents</a></li>'
            ]
 opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml"/>', 
             '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml"/>',
@@ -151,11 +151,11 @@ for fname in os.listdir(CUSTOM_SRC):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
     logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
-chapters.append('        <li><a href="{}license.xhtml">EPUB license</a></li>')
-chapters.append('        <li><a href="{}cz-001.xhtml">Back pages and cover 1851</a></li>')
+chapters.append('        <li><a href="license.xhtml">EPUB license</a></li>')
+chapters.append('        <li><a href="cz-001.xhtml">Back pages and cover 1851</a></li>')
 
 opf_mani.append('    <item id="license" href="license.xhtml" media-type="application/xhtml+xml"/>')
-opf_mani.append('    <item id="nav" href="../nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
+opf_mani.append('    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
 
 # Do not add navigation doc to spine
@@ -232,18 +232,16 @@ with open(os.path.join(OEB_DIR, "content.opf"), "w", encoding="utf-8") as f:
 # Create separate TOC and Nav, with similar content, since e-readers don't agree
 # 1 - as an OEBPS/toc.xhtml, with images and without item attribute properties="nav"
 # 2 - without images, as a root nav.xhtml and with item attribute properties="nav"
-def write_nav_xhtml (dest=EPUB_DIR) -> int:
-    cha_dir="OEBPS/"
+def write_nav_xhtml (dest="nav") -> int:
     nav_id="nav"
     head='''<head>
         <title>Navigation</title>
-        <link type="text/css" rel="stylesheet" href="OEBPS/css/mobydick.css"/>
+        <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
     </head>'''
     toc_top='''<nav epub:type="toc" id="{}">'''.format(nav_id)
     toc_end='''</nav>'''
 
-    if dest != EPUB_DIR:
-        cha_dir=""
+    if dest != "nav":
         nav_id="toc"
         head='''<head>
         <title>Table of Contents</title>
@@ -275,22 +273,22 @@ def write_nav_xhtml (dest=EPUB_DIR) -> int:
         {toc_top}
         <h1>Table of Contents</h1>
         <ol class="nav-toc">
-            {"\n".join([entry.replace("chapter_", f"{cha_dir}chapter_").format(cha_dir) for entry in chapters])}
+            {"\n".join([entry for entry in chapters])}
         </ol>
         {toc_end}
     </body>
     </html>
     '''
-    with open(os.path.join(dest, f"{nav_id}.xhtml"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OEB_DIR, f"{nav_id}.xhtml"), "w", encoding="utf-8") as f:
         f.write(nav_xhtml)
 
-    logger.info(f"TOC written successfully to epub location {dest} as {nav_id}.xhtml")
+    logger.info(f"{dest.upper()} written successfully to epub as {nav_id}.xhtml")
 
     return 0
 
 # Write these directly to EPUB location
-write_nav_xhtml(dest=EPUB_DIR)
-write_nav_xhtml(dest=OEB_DIR)
+write_nav_xhtml("nav")
+write_nav_xhtml("toc")
 
 # 8. Create EPUB zip
 with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
@@ -298,7 +296,7 @@ with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
     epub.write(f"{EPUB_DIR}/mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
 
     # nav.xhtml with NAV property to same e-book destination
-    epub.write(f"{EPUB_DIR}/nav.xhtml", "nav.xhtml")
+    # epub.write(f"{OEB_DIR}/nav.xhtml", "OEBPS/nav.xhtml")
 
     # Add META-INF folder
     for root, dirs, files in os.walk(MET_DIR):
