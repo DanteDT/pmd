@@ -306,8 +306,7 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
         else:
             aside = soup.new_tag(
                 "p",
-                id=ref_id,
-                **{"class": "class_ch_footers"}
+                id=ref_id
             )
 
         # backlink

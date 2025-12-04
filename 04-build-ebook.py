@@ -158,8 +158,9 @@ opf_mani.append('    <item id="license" href="license.xhtml" media-type="applica
 opf_mani.append('    <item id="nav" href="../nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
 
+# Do not add navigation doc to spine
 opf_spin.append('    <itemref idref="license"/>')
-opf_spin.append('    <itemref idref="nav"/>')
+# opf_spin.append('    <itemref idref="nav"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
 
 # 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB_DIR
