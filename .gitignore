@@ -1,6 +1,6 @@
 # My Project .gitignore
 1851_pages/
-EPUB/
+EPUB*/
 chapters_*/
 css/
 extra_pmd/
