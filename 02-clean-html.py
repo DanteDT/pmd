@@ -230,9 +230,9 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
       2. <span class="sidenote" title="...">text</span>
       3. <div class="sidenote" id="snNNN"> ...HTML... </div>
 
-    Converts all to EPUB type footnotes, for footnote and noteref readers, which do not agree
-      - inline footnote anchors using visible text (or auto-label for block sidenotes)
-      - <aside epub:type=f"{epub_ref}"><p>...</p></aside> entries
+    Converts all to EPUB type footnotes, for noteref/footnote readers, which do not agree
+      - inline "noteref" anchors to tag visible text
+      - <aside epub:type="footnote"><p>...</p></aside> entries
       - A single footer container per chapter.
     """
 
@@ -275,21 +275,40 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
 
         src_id, ref_id = new_ids()
 
-        # Create inline source anchor
-        src_anchor = soup.new_tag(
-            "a",
-            id=src_id,
-            href=f"chapter_{chapter_str}.xhtml#{ref_id}",
-            **{"epub:type": f"{epub_ref}", "class": "class_source"}
-        )
+        # Create inline source anchor, Footnotes or Links (no epub:type)
+        if epub_ref == "foot":
+            src_anchor = soup.new_tag(
+                "a",
+                id=src_id,
+                href=f"chapter_{chapter_str}.xhtml#{ref_id}",
+                **{"epub:type": "noteref", "class": "class_source"}
+            )
+        else:
+            src_anchor = soup.new_tag(
+                "a",
+                id=src_id,
+                href=f"chapter_{chapter_str}.xhtml#{ref_id}",
+                **{"class": "class_source"}
+            )
         src_anchor.string = visible_text
 
         # Replace old tag
         tag.replace_with(src_anchor)
 
-        # Build footnote aside
-        aside = soup.new_tag("aside", id=ref_id, **{"epub:type": f"{epub_ref}"})
-        p = soup.new_tag("p")
+        # Build aside for Footnote, or simple paragraph for Links skipping outer <aside>
+
+        if epub_ref == "foot":
+            aside = soup.new_tag(
+                "aside",
+                id=ref_id, 
+                **{"epub:type": "footnote"})
+            p = soup.new_tag("p")
+        else:
+            aside = soup.new_tag(
+                "p",
+                id=ref_id,
+                **{"class": "class_ch_footers"}
+            )
 
         # backlink
         backlink = soup.new_tag("a",
@@ -297,13 +316,22 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
             **{"class": "class_footnote"}
         )
         backlink.string = "↩"
-        p.append(backlink)
+
+        if epub_ref == "foot":
+            p.append(backlink)
+        else:
+            aside.append(backlink)
 
         # Add parsed title HTML
         for node in parse_html_fragment(title_html):
-            p.append(node)
+            if epub_ref == "foot":
+                p.append(node)
+            else:
+                aside.append(node)
 
-        aside.append(p)
+        if epub_ref == "foot":
+            aside.append(p)
+
         footnotes.append(aside)
 
     ### ---------------------------------------------------------
@@ -326,7 +354,7 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
     #         "a",
     #         id=src_id,
     #         href=f"chapter_{chapter_str}.xhtml#{ref_id}",
-    #         **{"epub:type": f"{epub_ref}", "class": "class_source"}
+    #         **{"epub:type": "noteref", "class": "class_source"}
     #     )
     #     inline_anchor.string = visible_marker
 
@@ -334,7 +362,7 @@ def transform_annotations_to_epub_footnotes(html_string: str, chapter_number: in
     #     div.replace_with(inline_anchor)
 
     #     # Build footnote
-    #     aside = soup.new_tag("aside", id=ref_id, **{"epub:type": f"{epub_ref}"})
+    #     aside = soup.new_tag("aside", id=ref_id, **{"epub:type": "footnote"})
     #     p = soup.new_tag("p")
 
     #     backlink = soup.new_tag(
@@ -393,12 +421,12 @@ def transform_sidenotes_to_epub(html_string: str, chapter_number: int) -> str:
         fn_ref_id = f"{chapter_prefix}_fnref_{fn_counter}"
 
         # Create inline footnote reference
-        a_tag = soup.new_tag("a", href=f"#{fn_id}", id=fn_ref_id, **{"epub:type": f"{epub_ref}"})
+        a_tag = soup.new_tag("a", href=f"#{fn_id}", id=fn_ref_id, **{"epub:type": "noteref"})
         a_tag.string = span.get_text(strip=True)
         span.replace_with(a_tag)
 
         # Create aside footnote
-        aside = soup.new_tag("aside", id=fn_id, **{"epub:type": f"{epub_ref}"})
+        aside = soup.new_tag("aside", id=fn_id, **{"epub:type": "footnote"})
         aside.append(BeautifulSoup(note_text, "html.parser"))
         # Append to end of body
         body = soup.body or soup

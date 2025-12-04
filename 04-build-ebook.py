@@ -18,9 +18,9 @@ config_data = config.load_config()
 debugging = config_data["exe_mode"]["debugging"]
 epub_ref = config_data["exe_mode"]["epub_ref"]
 
-# Create separate EPUB for Footnote and NoteRef footnotes
+# Create separate EPUB for Footnotes and Hyperlinks (different metadata)
 # - since unfortunately e-readers can't agree
-if epub_ref == "noteref":
+if epub_ref == "link":
     epub_ref = " ".join([",", epub_ref])
 else:
     epub_ref = ""
@@ -40,20 +40,20 @@ CSS_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["css_dir"])
 IMG_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["img_dir"])
 
 # contents.opf manifest and spine entries
-chapters = [f'        <li><a href="ca-001.xhtml">Cover 1851</a></li>',
-            f'        <li><a href="ca-002.xhtml">Front pages 1851</a></li>',
-            f'        <li><a href="ca-003.xhtml">Notes from the editor</a></li>',
-            f'        <li><a href="nav.xhtml">Table of Contents</a></li>'
+chapters = ['<li><a href="{}ca-001.xhtml">Cover 1851</a></li>',
+            '        <li><a href="{}ca-002.xhtml">Front pages 1851</a></li>',
+            '        <li><a href="{}ca-003.xhtml">Notes from the editor</a></li>',
+            '        <li><a href="{}toc.xhtml">Table of Contents</a></li>'
            ]
 opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml"/>', 
             '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml"/>',
             '    <item id="ca-003" href="ca-003.xhtml" media-type="application/xhtml+xml"/>',
-            '    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>'
+            '    <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml"/>'
             ]
 opf_spin = ['<itemref idref="ca-001"/>', 
             '    <itemref idref="ca-002"/>',
             '    <itemref idref="ca-003"/>',
-            '    <itemref idref="nav"/>'
+            '    <itemref idref="toc"/>'
             ]
 
 # 1. Create temp folder structure, fresh start - so remove EPUB_DIR target dir
@@ -151,11 +151,15 @@ for fname in os.listdir(CUSTOM_SRC):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
     logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
-chapters.append(f'        <li><a href="license.xhtml">EPUB license</a></li>')
-chapters.append(f'        <li><a href="cz-001.xhtml">Back pages and cover 1851</a></li>')
+chapters.append('        <li><a href="{}license.xhtml">EPUB license</a></li>')
+chapters.append('        <li><a href="{}cz-001.xhtml">Back pages and cover 1851</a></li>')
+
 opf_mani.append('    <item id="license" href="license.xhtml" media-type="application/xhtml+xml"/>')
+opf_mani.append('    <item id="nav" href="../nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
+
 opf_spin.append('    <itemref idref="license"/>')
+opf_spin.append('    <itemref idref="nav"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
 
 # 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB_DIR
@@ -197,7 +201,6 @@ with open(os.path.join(MET_DIR, "container.xml"), "w", encoding="utf-8") as f:
     f.write(container_xml)
 
 # 6. Create content.opf
-
 book_id = str(uuid.uuid4())
 opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid_id">
@@ -224,50 +227,77 @@ opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
 with open(os.path.join(OEB_DIR, "content.opf"), "w", encoding="utf-8") as f:
     f.write(opf_all)
 
-# 7. Create minimal nav.xhtml
-nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
-  <head>
-    <title>Table of Contents</title>
-    <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
-  </head>
-  <body>
-    <a href="http://www.powermobydick.com/">
-      <img width="100%" src="images/PowerMobyDickLogo.jpg"/>
-    </a>
-    <nav epub:type="toc" id="nav">
-      <h1>Table of Contents</h1>
-      <ol class="nav-toc">
-        {"\n".join([entry for entry in chapters])}
-      </ol>
-    </nav>
-    <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
+# 7. Create toc.xhtml chapter, and nav.xhtml navigation element
+# Create separate TOC and Nav, with similar content, since e-readers don't agree
+# 1 - as an OEBPS/toc.xhtml, with images and without item attribute properties="nav"
+# 2 - without images, as a root nav.xhtml and with item attribute properties="nav"
+def write_nav_xhtml (dest=EPUB_DIR) -> int:
+    cha_dir="OEBPS/"
+    nav_id="nav"
+    head='''<head>
+        <title>Navigation</title>
+        <link type="text/css" rel="stylesheet" href="OEBPS/css/mobydick.css"/>
+    </head>'''
+    toc_top='''<nav epub:type="toc" id="{}">'''.format(nav_id)
+    toc_end='''</nav>'''
 
-    <a href="http://www.powermobydick.com/">
-      <img width="100%" src="images/mobydicklightlowres.jpg"/>
-    </a>
+    if dest != EPUB_DIR:
+        cha_dir=""
+        nav_id="toc"
+        head='''<head>
+        <title>Table of Contents</title>
+        <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
+    </head>'''
+        toc_top='''<a href="http://www.powermobydick.com/">
+            <img width="100%" src="images/PowerMobyDickLogo.jpg"/>
+        </a>'''
+        toc_end='''<h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
+        <a href="http://www.powermobydick.com/">
+            <img width="100%" src="images/mobydicklightlowres.jpg"/>
+        </a>
 
-    <div id="Title_00004">
-      <img class="full_page_image" src="images/cover-add-004-toc.jpg"/>
-    </div>
-    <div id="Title_00005">
-      <img class="full_page_image" src="images/cover-add-005-toc.jpg"/>
-    </div>
-    <div id="Title_00006">
-      <img class="full_page_image" src="images/cover-add-006-md.jpg"/>
-    </div>
+        <div id="Title_00004">
+            <img class="full_page_image" src="images/cover-add-004-toc.jpg"/>
+        </div>
+        <div id="Title_00005">
+            <img class="full_page_image" src="images/cover-add-005-toc.jpg"/>
+        </div>
+        <div id="Title_00006">
+            <img class="full_page_image" src="images/cover-add-006-md.jpg"/>
+        </div>'''
 
-  </body>
-</html>
-'''
-with open(os.path.join(OEB_DIR, "nav.xhtml"), "w", encoding="utf-8") as f:
-    f.write(nav_xhtml)
+    nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+    {head}
+    <body>
+        {toc_top}
+        <h1>Table of Contents</h1>
+        <ol class="nav-toc">
+            {"\n".join([entry.replace("chapter_", f"{cha_dir}chapter_").format(cha_dir) for entry in chapters])}
+        </ol>
+        {toc_end}
+    </body>
+    </html>
+    '''
+    with open(os.path.join(dest, f"{nav_id}.xhtml"), "w", encoding="utf-8") as f:
+        f.write(nav_xhtml)
+
+    logger.info(f"TOC written successfully to epub location {dest} as {nav_id}.xhtml")
+
+    return 0
+
+# Write these directly to EPUB location
+write_nav_xhtml(dest=EPUB_DIR)
+write_nav_xhtml(dest=OEB_DIR)
 
 # 8. Create EPUB zip
 with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
     # mimetype must be first and uncompressed
     epub.write(f"{EPUB_DIR}/mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
+
+    # nav.xhtml with NAV property to same e-book destination
+    epub.write(f"{EPUB_DIR}/nav.xhtml", "nav.xhtml")
 
     # Add META-INF folder
     for root, dirs, files in os.walk(MET_DIR):
