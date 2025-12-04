@@ -21,7 +21,7 @@ I test on epub readers that I have used for a long time, without trying harder f
 
 ### Why two .epub files? What's the difference?
 
-Unfortunately, e-pub devices and readers support TOC Navigation, and Footnotes in different ways (or not).
+Unfortunately, e-pub devices and apps support TOC Navigation, and Footnotes in different ways (or not).
 
 To keep this overview minimal, I address technical topics in:
 * [TOC navigation](navigation.md), and
@@ -42,6 +42,8 @@ If you can demonstrate WORKING, or WORKING/CONFORMANT Popup Footnotes or TOC Nav
 * *no copyrighted content, please. just simple examples of working syntax, like the ones in those folders.*
 
 To customize your own edition, consider the [config.yaml](config.yaml) setting `debugging: True` to focus a debugging session. The setting `epub_ref: "foot"` produces the Footnote editions; `epub_ref: "link"` produces the hyperlink edition.
+
+### Recognition and attribution
 
 With respect and gratitude for Herman and Margaret. ❤️
 
