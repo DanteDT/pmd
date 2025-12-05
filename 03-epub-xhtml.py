@@ -39,7 +39,7 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
         "xmlns": "http://www.w3.org/1999/xhtml",
         "xmlns:epub": "http://www.idpf.org/2007/ops",
         "xml:lang": "en-US",
-        "lang": "en"
+        "lang": "en-US"
     })
     xhtml.append(html_tag)
 

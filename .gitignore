@@ -6,6 +6,7 @@ css/
 extra_pmd/
 venv/
 refactor*
+EPUB*.xls
 *.csv
 *.epub
 *.log

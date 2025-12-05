@@ -45,8 +45,8 @@ chapters = ['<li><a href="ca-001.xhtml">Cover 1851</a></li>',
             '        <li><a href="ca-003.xhtml">Notes from the editor</a></li>',
             '        <li><a href="toc.xhtml">Table of Contents</a></li>'
            ]
-opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml"/>', 
-            '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml"/>',
+opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml" properties="svg"/>', 
+            '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml" properties="svg"/>',
             '    <item id="ca-003" href="ca-003.xhtml" media-type="application/xhtml+xml"/>',
             '    <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml"/>'
             ]
@@ -156,7 +156,7 @@ chapters.append('        <li><a href="cz-001.xhtml">Back pages and cover 1851</a
 
 opf_mani.append('    <item id="license" href="license.xhtml" media-type="application/xhtml+xml"/>')
 opf_mani.append('    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
-opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml"/>')
+opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml" properties="svg"/>')
 
 # Do not add navigation doc to spine
 opf_spin.append('    <itemref idref="license"/>')
@@ -203,17 +203,20 @@ with open(os.path.join(MET_DIR, "container.xml"), "w", encoding="utf-8") as f:
 
 # 6. Create content.opf
 book_id = str(uuid.uuid4())
-opf_all=f'''<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid_id">
-  <metadata xmlns:opf="http://www.idpf.org/2007/opf" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
+opf_all=f'''<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="3.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:dcterms="http://purl.org/dc/terms/" 
+            xmlns:epub="http://www.idpf.org/2007/ops"
+            xmlns:opf="http://www.idpf.org/2007/opf" 
+            xmlns:svg="http://www.w3.org/2000/svg"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title title-type="main">Moby-Dick; Or, The Whale [Power{epub_ref}]</dc:title>
+    <dc:title id="id">Moby-Dick; Or, The Whale [Power{epub_ref}]</dc:title>
     <dc:creator>Herman Melville</dc:creator>
     <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
     <dc:identifier id="uuid_id">urn:uuid:{book_id}</dc:identifier>
+    <meta property="dcterms:modified">1851-11-14T00:00:00Z</meta>
+    <opf:meta refines="#id" property="title-type">main</opf:meta>
   </metadata>
 
   <manifest>
@@ -248,11 +251,11 @@ def write_nav_xhtml (dest="nav") -> int:
         <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
     </head>'''
         toc_top='''<a href="http://www.powermobydick.com/">
-            <img width="100%" src="images/PowerMobyDickLogo.jpg"/>
+            <img src="images/PowerMobyDickLogo.jpg"/>
         </a>'''
         toc_end='''<h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
         <a href="http://www.powermobydick.com/">
-            <img width="100%" src="images/mobydicklightlowres.jpg"/>
+            <img src="images/mobydicklightlowres.jpg"/>
         </a>
 
         <div id="Title_00004">
@@ -267,7 +270,7 @@ def write_nav_xhtml (dest="nav") -> int:
 
     nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE html>
-    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en-US">
+    <html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
     {head}
     <body>
         {toc_top}
