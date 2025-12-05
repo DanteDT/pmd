@@ -33,7 +33,7 @@ Due to unreliable support for these two essential e-book features by device manu
 
 Why is it so hard for device manufacturers and app developers to get this right? I don't know. People get [hard stuff right](https://home.cern/news/news/accelerators/hie-isolde-10-years-10-highlights) all the time.
 
-### Contribute
+### Use and Contribute
 Suggestions are welcome to improve the annotated Moby-Dick reading experience. Something not work on your e-reader? Please report it.
 
 If you can demonstrate WORKING, or WORKING/CONFORMANT Popup Footnotes or TOC Navigation for a particular scenario, please consider submitting that. See examples in:
