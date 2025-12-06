@@ -318,8 +318,9 @@ if pyresult.valid:
 else:
     logger.warning(f"EpubCheck validation FAIL! Messages {pyresult.messages}")
 
-# Create xls to manually review any messages
-sysresult = subprocess.run(f"epubcheck --xls EPUB-{epub_ref}.xls {EPUB_BOOK}", capture_output=True, text=True)
-logger.info(f"System EpubCheck stdout: {sysresult.stdout}") 
+# Create XLS as record of any epubcheck messages
+sysresult = subprocess.run(f"epubcheck -x EPUB-{epub_ref}.xls \"{EPUB_BOOK}\"")
+logger.info(f"System EpubCheck stdout: {sysresult.stdout}, stderr: {sysresult.stderr}") 
 
-logger.info(f"EPUB created and checked: {EPUB_BOOK}, see EPUB-{epub_ref}.xls.")
+logger.info(f"EPUB created and checked: {EPUB_BOOK}.")
+logger.info(f"See EPUB-{epub_ref}.xls.")
