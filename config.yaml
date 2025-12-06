@@ -8,12 +8,12 @@ proj_dirs:
   custom_dir: "custom"
   img_dir:    "images"
 epub_dirs:
-  book_dir: "EPUB"
+  book_dir: "EPUB-{}" # {}, for separate epub for footnotes and hyperlinks
   meta_dir: "META_INF"
   oeb_dir:  "OEBPS"
   css_dir:  "css"
   img_dir:  "images"
-  epub_book: "Moby-Dick, Or The Whale [Power{}] - Herman Melville.epub" # {}, for separate epub for footnotes and hyperlinks
+  epub_book: "Moby-Dick [Power, {}] - Herman Melville.epub" # {}, for separate epub for footnotes and hyperlinks
 exe_mode:
   debugging: False
   epub_ref: "foot" # foot or link. For e-readers that don't support epub:type="footnotes", use create <a> links.

@@ -6,10 +6,12 @@ A few manual steps are required in the final EPUB book
 """
 import os
 import shutil
+import subprocess
 import zipfile
 import uuid
 
 from bs4 import BeautifulSoup
+from epubcheck import EpubCheck
 import utils.utilities as utl
 import utils.config as config
 
@@ -18,22 +20,15 @@ config_data = config.load_config()
 debugging = config_data["exe_mode"]["debugging"]
 epub_ref = config_data["exe_mode"]["epub_ref"]
 
-# Create separate EPUB for Footnotes and Hyperlinks (different metadata)
-# - since unfortunately e-readers can't agree
-if epub_ref == "link":
-    epub_ref = " ".join([",", epub_ref])
-else:
-    epub_ref = ""
-
 # Folders
 IMG_SRC   = config_data["proj_dirs"]["img_dir"]     # source images
 CSS_SRC   = config_data["proj_dirs"]["custom_dir"]  # Custom CSS for EPUB
 XHTML_SRC = config_data["proj_dirs"]["ch_xhtml"]
 CUSTOM_SRC= config_data["proj_dirs"]["custom_dir"]  # custom front and back matter
 
-# EPUB structure
+# EPUB structure - separate releases for Footnotes and Hyperlinks
 EPUB_BOOK = config_data["epub_dirs"]["epub_book"].format(epub_ref)
-EPUB_DIR  = config_data["epub_dirs"]["book_dir"]
+EPUB_DIR  = config_data["epub_dirs"]["book_dir"].format(epub_ref)
 MET_DIR   = os.path.join(EPUB_DIR, config_data["epub_dirs"]["meta_dir"])
 OEB_DIR   = os.path.join(EPUB_DIR, config_data["epub_dirs"]["oeb_dir"])
 CSS_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["css_dir"])
@@ -210,7 +205,7 @@ opf_all=f'''<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uui
             xmlns:opf="http://www.idpf.org/2007/opf" 
             xmlns:svg="http://www.w3.org/2000/svg"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title id="id">Moby-Dick; Or, The Whale [Power{epub_ref}]</dc:title>
+    <dc:title id="id">Moby-Dick; Or, The Whale [Power, {epub_ref}]</dc:title>
     <dc:creator>Herman Melville</dc:creator>
     <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
@@ -314,5 +309,17 @@ with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
             arc_path = os.path.join("OEBPS", os.path.relpath(full_path, OEB_DIR))
             epub.write(full_path, arc_path)
 
+# pyresult.valid for log
+pyresult = EpubCheck(EPUB_BOOK)
+
 logger.info(f"EPUB created: {EPUB_BOOK}")
-logger.info("SUCCESS.")
+if pyresult.valid:
+    logger.info("EpubCheck validation SUCCESS!")
+else:
+    logger.warning(f"EpubCheck validation FAIL! Messages {pyresult.messages}")
+
+# Create xls to manually review any messages
+sysresult = subprocess.run(f"epubcheck --xls EPUB-{epub_ref}.xls {EPUB_BOOK}", capture_output=True, text=True)
+logger.info(f"System EpubCheck stdout: {sysresult.stdout}") 
+
+logger.info(f"EPUB created and checked: {EPUB_BOOK}, see EPUB-{epub_ref}.xls.")
