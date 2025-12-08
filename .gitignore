@@ -9,10 +9,13 @@ venv/
 refactor*
 EPUB*.xls
 *.csv
+*.azw3
 *.epub
+*.kepub
 *.log
+*.txt
 build_ebook.cmd
-
+convert_ebook.cmd
 
 # GitHub Python.gitignore template follows (modified to suit project)
 # Byte-compiled / optimized / DLL files
