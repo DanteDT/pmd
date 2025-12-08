@@ -7,6 +7,7 @@ extra_img/
 extra_pmd/
 venv/
 /refactor*
+/_releases_
 /EPUB*.xls
 /*.csv
 /*.azw3
