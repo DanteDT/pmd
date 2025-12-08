@@ -38,9 +38,9 @@ html_fixes = {"&eacute;": "é",
               "&amp;": "&",
               "Å": "ō",
               "Å«": "ū",  # Honshū
-              "â": "-", # en-dash
-              "–": "-",   # en-dash
-              "—": "-",   # em-dash
+              "â": "–", # en-dash
+              "–": "–",   # en-dash
+              "—": "—",   # em-dash
               "burtonsâa": "burtons - a",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
 
