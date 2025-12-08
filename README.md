@@ -36,9 +36,9 @@ Why is it so hard for device manufacturers and app developers to get this right?
 ### Use and Contribute
 Suggestions are welcome to improve the annotated Moby-Dick reading experience. Something not work on your e-reader? Please report it.
 
-If you can demonstrate WORKING, or WORKING/CONFORMANT Popup Footnotes or TOC Navigation for a particular scenario, please consider submitting that. See examples in:
-* [working](popup-notes/working) ... popups work, although syntax may not conform to any spec, and
-* [conformant](popup-notes/conformant) ... popups work, and syntax **conforms** to a recognized standard.
+If you can demonstrate WORKING, or WORKING/CONFORMANT Popup Footnotes or TOC Navigation for a particular scenario, please consider submitting that. See examples that:
+* [conform](popup-notes/conform) ... popups work, and syntax **conforms** to a recognized standard, and
+* [work](popup-notes/work) ... popups work, although syntax may not conform to any spec.
 * *no copyrighted content, please. just simple examples of working syntax, like the ones in those folders.*
 
 To customize your own edition, consider the [config.yaml](config.yaml) setting `debugging: True` to focus a debugging session. The setting `epub_ref: "foot"` produces the Footnote editions; `epub_ref: "link"` produces the hyperlink edition.
@@ -46,6 +46,9 @@ To customize your own edition, consider the [config.yaml](config.yaml) setting `
 ### Recognition and attribution
 
 With respect and gratitude for Herman and Margaret. ❤️
+* Moby-Dick by Herman Melville is in the public domain.
+* All notes in Power Moby-Dick: The Online Annotation copyright 2008 by Margaret Guroff.
+* Rendered and released here to common e-book formats with permission.
 
 This is what I can offer.
 
