@@ -54,7 +54,7 @@ opf_spin = ['<itemref idref="ca-001"/>',
 # 1. Create temp folder structure, fresh start - so remove EPUB_DIR target dir
 if os.path.exists(EPUB_BOOK):
   os.remove(EPUB_BOOK)
-  logger.info(f"Rmoved prior dir {EPUB_BOOK}.")
+  logger.info(f"Removed prior dir {EPUB_BOOK}.")
 
 utl.init_dir(EPUB_DIR)
 utl.init_dir(MET_DIR)
