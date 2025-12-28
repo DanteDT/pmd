@@ -17,6 +17,8 @@ import utils.config as config
 
 logger = utl.init_logger()
 config_data = config.load_config()
+version = config_data["exe_mode"]["version"]
+book_id = config_data["exe_mode"]["uuid"]
 debugging = config_data["exe_mode"]["debugging"]
 epub_ref = config_data["exe_mode"]["epub_ref"]
 
@@ -140,9 +142,9 @@ for fname in os.listdir(XHTML_SRC):
         opf_spin.append(f'    <itemref idref="chapter_{chapter_number:03d}"/>')
     logger.info(f"Copied chapter {chapter_number:03d} to EPUB {OEB_DIR}.")
 
-# add in the custom back pieces
+# add in the custom pages and fonts
 for fname in os.listdir(CUSTOM_SRC):
-    if fname.endswith('.xhtml'):
+    if fname.endswith('.xhtml') or fname.endswith('.ttf'):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
     logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
@@ -155,8 +157,8 @@ opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="applicati
 
 # Do not add navigation doc to spine
 opf_spin.append('    <itemref idref="license"/>')
-# opf_spin.append('    <itemref idref="nav"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
+# opf_spin.append('    <itemref idref="nav"/>')
 
 # 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB_DIR
 cssidx=0
@@ -197,21 +199,29 @@ with open(os.path.join(MET_DIR, "container.xml"), "w", encoding="utf-8") as f:
     f.write(container_xml)
 
 # 6. Create content.opf
-book_id = str(uuid.uuid4())
+
+opf_mani.append('    <item id="id-4" href="font_CSIL.ttf" media-type="application/vnd.ms-opentype"/>')
+opf_mani.append('    <item id="id-2" href="font_DanteMT.ttf" media-type="application/vnd.ms-opentype"/>')
+
+created_date = utl.get_utc_now().strip()
+
 opf_all=f'''<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="3.0">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:dcterms="http://purl.org/dc/terms/" 
-            xmlns:epub="http://www.idpf.org/2007/ops"
-            xmlns:opf="http://www.idpf.org/2007/opf" 
-            xmlns:svg="http://www.w3.org/2000/svg"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title id="id">Moby-Dick; Or, The Whale [Power, {epub_ref}]</dc:title>
-    <dc:creator>Herman Melville</dc:creator>
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" 
+            xmlns:epub="http://www.idpf.org/2007/ops" xmlns:opf="http://www.idpf.org/2007/opf" 
+            xmlns:svg="http://www.w3.org/2000/svg" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:title id="title">Moby-Dick; Or, The Whale (Power)</dc:title>
+    <dc:title id="fulltitle">Moby-Dick; Or, The Whale (Power, {epub_ref}, v{version})</dc:title>
+    <dc:creator id="author">Herman Melville</dc:creator>
     <dc:publisher>Power Moby Dick</dc:publisher>
     <dc:language>en</dc:language>
     <dc:identifier id="uuid_id">urn:uuid:{book_id}</dc:identifier>
-    <meta property="dcterms:modified">1851-11-14T00:00:00Z</meta>
-    <opf:meta refines="#id" property="title-type">main</opf:meta>
+    <dc:date>1851-11-14T00:00:00+00:00</dc:date>
+    <opf:meta property="dcterms:modified">{created_date}</opf:meta>
+    <opf:meta refines="#title" property="title-type">main</opf:meta>
+    <opf:meta refines="#title" property="file-as">Moby-Dick; Or, The Whale (Power)</opf:meta>
+    <opf:meta refines="#fulltitle" property="title-type">extended</opf:meta>
+    <opf:meta refines="#author" property="role" scheme="marc:relators">aut</opf:meta>
+    <opf:meta refines="#author" property="file-as">Melville, Herman</opf:meta>
   </metadata>
 
   <manifest>
@@ -245,13 +255,13 @@ def write_nav_xhtml (dest="nav") -> int:
         <title>Table of Contents</title>
         <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
     </head>'''
-        toc_top='''<a href="http://www.powermobydick.com/">
-            <img src="images/PowerMobyDickLogo.jpg"/>
-        </a>'''
+        toc_top='''<div><a href="http://www.powermobydick.com/">
+            <img class="center_image" src="images/PowerMobyDickLogo.jpg"/>
+        </a></div>'''
         toc_end='''<h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
-        <a href="http://www.powermobydick.com/">
-            <img src="images/mobydicklightlowres.jpg"/>
-        </a>
+        <div><a href="http://www.powermobydick.com/">
+            <img class="center_image" src="images/mobydicklightlowres.jpg"/>
+        </a></div>
 
         <div id="Title_00004">
             <img class="full_page_image" src="images/cover-add-004-toc.jpg"/>

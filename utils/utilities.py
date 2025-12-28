@@ -7,6 +7,7 @@ import shutil
 import sys
 
 from bs4 import BeautifulSoup
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from PIL import Image
@@ -40,6 +41,10 @@ def init_dir(DIR:str) -> int:
     os.makedirs(DIR, exist_ok=True)
     logger.info(f"Fresh start created {DIR}")
     return 0
+
+def get_utc_now() -> str:
+    """ Today's date in EPUB 3.3 modified format CCYY-MM-DDThh:mm:ssZ """
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 def fetch_html(url: str) -> str:
     """Fetch raw HTML text from a URL."""
