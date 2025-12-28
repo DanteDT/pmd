@@ -258,11 +258,10 @@ def write_nav_xhtml (dest="nav") -> int:
         toc_top='''<div><a href="http://www.powermobydick.com/">
             <img class="center_image" src="images/PowerMobyDickLogo.jpg"/>
         </a></div>'''
-        toc_end='''<h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a></h2>
-        <div><a href="http://www.powermobydick.com/">
-            <img class="center_image" src="images/mobydicklightlowres.jpg"/>
-        </a></div>
-
+        toc_end='''<div><figure>
+        <a href="http://www.powermobydick.com/"><img class="center_image" src="images/mobydicklightlowres.jpg"/></a>
+        <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a>.</h2>
+        </figure></div>
         <div id="Title_00004">
             <img class="full_page_image" src="images/cover-add-004-toc.jpg"/>
         </div>
