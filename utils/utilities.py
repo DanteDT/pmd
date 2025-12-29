@@ -92,7 +92,7 @@ def download_url(target_url: str, out_dir=".", fname=""):
     else:
         logger.warning(f"Extend download_url to handle mimetype {mime_type} content from URL {target_url} .")
 
-def insert_custom_images(html: str, insertions: list[dict]) -> str:
+def insert_custom_images(chap_num: int, html: str, insertions: list[dict]) -> tuple[list, str]:
     """ Insert custom images into HTML content based on insertion instructions.
 
     Args:
@@ -102,6 +102,7 @@ def insert_custom_images(html: str, insertions: list[dict]) -> str:
             - 'juxtaposition': where to insert the image ('left', 'right', 'center')
             - 'anchor-text': Book text used to locate insertion point
     Returns:
+        list: Updated insertions, "chapters" key added with chapter number.
         str: Modified HTML content with images inserted. """
     soup = BeautifulSoup(html, "html.parser")
 
@@ -123,8 +124,13 @@ def insert_custom_images(html: str, insertions: list[dict]) -> str:
             # Insert the image tag before the anchor text
             anchor_parent = anchor.parent
             anchor_parent.insert_before(img_tag)
+
+            # Update this record in insertions, to add this chapter number
+            insertion['chapters'] = insertion.get('chapters', []) + [chap_num]
+
+            # Log the insertion
             logger.info(f"Inserted image {img_file} at anchor text '{anchor_text}' with juxtaposition '{juxtaposition}'.")
         else:
             continue
 
-    return str(soup)
+    return insertions, str(soup)

@@ -27,6 +27,9 @@ with open(os.path.join(config_data["proj_dirs"]["img_dir"], "insert_img.csv"), e
     for row in reader:
         image_insertions.append(row)
 
+# make image_insertions a global object, accessible to utilities
+utl.image_insertions = image_insertions
+
 # Fresh start, unless debugging
 if not debugging:
     utl.init_dir(OUTPUT_DIR)
@@ -34,13 +37,14 @@ if not debugging:
 else:
     logger.info("Debugging mode: skipping directory initialization.")
 
-def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> str:
+def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None, image_insertions=None) -> str:
     """
     Wraps cleaned chapter HTML into valid XHTML suitable for EPUB3.
     - chapter_html: cleaned HTML (annotations converted, page anchors inserted)
     - chapter_number: used for title and IDs
     - css_files: list of relative CSS filenames to include (optional)
-    Returns a string containing valid XHTML.
+    - image_insertions: list of image insertion instructions (optional)
+    Returns updated image_insertions list and a string containing valid XHTML.
     """
 
     # Create XHTML skeleton
@@ -83,7 +87,7 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     html_tag.append(body_tag)
 
     # Insert custom images into HTML
-    chapter_html = utl.insert_custom_images(chapter_html, image_insertions)
+    image_insertions, chapter_html = utl.insert_custom_images(chapter_number, chapter_html, image_insertions)
 
     # Insert the cleaned chapter content into body
     chapter_soup = BeautifulSoup(chapter_html, "html.parser")
@@ -109,12 +113,20 @@ for fname in sorted(os.listdir(CHAPTER_SRC)):
         html = fp.read()
 
     # Wrap in EPUB XHTML
-    xhtml = make_epub_xhtml(html, number, css_files=CSS_FILES)
+    xhtml = make_epub_xhtml(html, number, css_files=CSS_FILES, image_insertions=image_insertions)
 
     # Save
     out_fname = f"chapter_{number:03d}.xhtml"
     with open(os.path.join(OUTPUT_DIR, out_fname), "w", encoding="utf-8") as out_f:
         out_f.write(xhtml)
     logger.info(f"Saved {out_fname}")
+
+# Final log of image insertions, overwrite any prior at root of project directory
+with open("log_insert_img.csv", "w", encoding="utf-8", newline='') as log_csv:
+    fieldnames = ["img-file", "juxtaposition", "anchor-text", "chapters"]
+    writer = csv.DictWriter(log_csv, fieldnames=fieldnames)
+    writer.writeheader()
+    for insertion in image_insertions:
+        writer.writerow(insertion)
 
 logger.info("SUCCESS.")
