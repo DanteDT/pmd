@@ -256,10 +256,10 @@ def write_nav_xhtml (dest="nav") -> int:
         <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
     </head>'''
         toc_top='''<div><a href="http://www.powermobydick.com/">
-            <img class="center_image" src="images/PowerMobyDickLogo.jpg"/>
+            <img class="center_img" src="images/PowerMobyDickLogo.jpg"/>
         </a></div>'''
         toc_end='''<div><figure>
-        <a href="http://www.powermobydick.com/"><img class="center_image" src="images/mobydicklightlowres.jpg"/></a>
+        <a href="http://www.powermobydick.com/"><img class="center_img" src="images/mobydicklightlowres.jpg"/></a>
         <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a>.</h2>
         </figure></div>
         <div id="Title_00004">

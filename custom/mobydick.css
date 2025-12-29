@@ -100,8 +100,20 @@ img {
   margin: auto;
 }
 /* centered images */
-.center_image {
+img.center_img {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+/* left-aligned images with text wrap */
+img.left_img {
+  float: left;
+  margin-right: 1.6em;
+  margin-bottom: 1.6em;
+}
+/* right-aligned images with text wrap */
+img.right_img { 
+  float: right;
+  margin-left: 1.6em;
+  margin-bottom: 1.6em;
 }

@@ -91,3 +91,40 @@ def download_url(target_url: str, out_dir=".", fname=""):
 
     else:
         logger.warning(f"Extend download_url to handle mimetype {mime_type} content from URL {target_url} .")
+
+def insert_custom_images(html: str, insertions: list[dict]) -> str:
+    """ Insert custom images into HTML content based on insertion instructions.
+
+    Args:
+        html (str): Original HTML content.
+        insertions (list[dict]): List of insertion instructions, each dict containing:
+            - 'img-file': filename of the image to insert (assumed to be in 'images/' directory)
+            - 'juxtaposition': where to insert the image ('left', 'right', 'center')
+            - 'anchor-text': Book text used to locate insertion point
+    Returns:
+        str: Modified HTML content with images inserted. """
+    soup = BeautifulSoup(html, "html.parser")
+
+    for insertion in insertions:
+        img_file = insertion.get("img-file")
+        juxtaposition = insertion.get("juxtaposition", "center").lower()
+        anchor_text = insertion.get("anchor-text", "")
+
+        anchor = soup.find(string=lambda text: text and anchor_text in text)
+        if anchor:
+            img_tag = soup.new_tag("img", src="/".join(["images", img_file]))
+            if juxtaposition == "left":
+                img_tag['class'] = "left_img"
+            elif juxtaposition == "right":
+                img_tag['class'] = "right_img"
+            else:
+                img_tag['class'] = "center_img"
+
+            # Insert the image tag before the anchor text
+            anchor_parent = anchor.parent
+            anchor_parent.insert_before(img_tag)
+            logger.info(f"Inserted image {img_file} at anchor text '{anchor_text}' with juxtaposition '{juxtaposition}'.")
+        else:
+            continue
+
+    return str(soup)

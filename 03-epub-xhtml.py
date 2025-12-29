@@ -1,3 +1,4 @@
+import csv
 from bs4 import BeautifulSoup
 import os
 import utils.utilities as utl
@@ -15,6 +16,16 @@ CSS_FILES   = sorted(os.listdir(CSS_SRC))
 
 # New Folders
 OUTPUT_DIR = config_data["proj_dirs"]["ch_xhtml"]     # output XHTML
+
+# Load custom image insertion data, as list of tuples from CSV columns:
+# - img-file: filename of the image to insert (assumed to be in 'images/' directory)
+# - juxtaposition: where to insert the image ('left', 'right', 'center')
+# - anchor-text: Book text used to locate insertion point
+with open(os.path.join(config_data["proj_dirs"]["img_dir"], "insert_img.csv"), encoding="utf-8") as img_csv:
+    image_insertions = []
+    reader = csv.DictReader(img_csv)
+    for row in reader:
+        image_insertions.append(row)
 
 # Fresh start, unless debugging
 if not debugging:
@@ -71,8 +82,11 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None) -> s
     body_tag = xhtml.new_tag("body")
     html_tag.append(body_tag)
 
+    # Insert custom images into HTML
+    chapter_html = utl.insert_custom_images(chapter_html, image_insertions)
+
     # Insert the cleaned chapter content into body
-    chapter_soup = BeautifulSoup(html, "html.parser")
+    chapter_soup = BeautifulSoup(chapter_html, "html.parser")
     for elem in list(chapter_soup.contents):
         body_tag.append(elem)
 
