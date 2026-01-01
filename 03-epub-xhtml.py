@@ -10,6 +10,7 @@ debugging = config_data["exe_mode"]["debugging"]
 
 # Source Folders
 CHAPTER_SRC = config_data["proj_dirs"]["ch_patched"]  # patched HTML chapters
+EXTRA_IMG   = config_data["proj_dirs"]["extra_img"]     # custom images for EPUB
 CSS_SRC     = config_data["proj_dirs"]["custom_dir"]  # CSS source for EPUB
 CSS_BOOK    = config_data["epub_dirs"]["css_dir"]     # path for CSS in EPUB
 CSS_FILES   = sorted(os.listdir(CSS_SRC))
@@ -21,7 +22,7 @@ OUTPUT_DIR = config_data["proj_dirs"]["ch_xhtml"]     # output XHTML
 # - img-file: filename of the image to insert (assumed to be in 'images/' directory)
 # - juxtaposition: where to insert the image ('left', 'right', 'center')
 # - anchor-text: Book text used to locate insertion point
-with open(os.path.join(config_data["proj_dirs"]["img_dir"], "insert_img.csv"), encoding="utf-8") as img_csv:
+with open(os.path.join(EXTRA_IMG, "insert_img.csv"), encoding="utf-8") as img_csv:
     image_insertions = []
     reader = csv.DictReader(img_csv)
     for row in reader:
@@ -121,8 +122,8 @@ for fname in sorted(os.listdir(CHAPTER_SRC)):
         out_f.write(xhtml)
     logger.info(f"Saved {out_fname}")
 
-# Final log of image insertions, overwrite any prior at root of project directory
-with open("log_insert_img.csv", "w", encoding="utf-8", newline='') as log_csv:
+# Final log of image insertions, overwrite any prior, alongside insert_img.csv
+with open(os.path.join(EXTRA_IMG, "log_insert_img.csv"), "w", encoding="utf-8", newline='') as log_csv:
     fieldnames = ["img-file", "juxtaposition", "anchor-text", "chapters"]
     writer = csv.DictWriter(log_csv, fieldnames=fieldnames)
     writer.writeheader()

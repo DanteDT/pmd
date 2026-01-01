@@ -3,7 +3,6 @@
 EPUB-*/
 chapters_*/
 css/
-extra_img/
 extra_pmd/
 venv/
 /refactor*
@@ -99,24 +98,6 @@ __pypackages__/
 
 # PyPI configuration file
 .pypirc
-# My Project .gitignore
-1851_pages/
-EPUB-*/
-chapters_*/
-css/
-extra_img/
-extra_pmd/
-venv/
-./refactor*
-./EPUB*.xls
-./*.csv
-./*.azw3
-./*.epub
-./*.kepub
-./*.log
-./*.txt
-build_ebook.cmd
-convert_ebook.cmd
 
 # GitHub Python.gitignore template follows (modified to suit project)
 # Byte-compiled / optimized / DLL files

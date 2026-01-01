@@ -88,7 +88,19 @@ def download_url(target_url: str, out_dir=".", fname=""):
                 logger.error(f"The content received was not a valid image: URL {target_url}, mimetype {mime_type}, filename {fname}.")
         else:
             logger.error(f"Failed to retrieve mimetype {mime_type} content from URL {target_url}. Status code: {rsp.status_code}")
-
+    elif not mime_type:
+        # Unknown mimetype, try to download as binary
+        try:
+            rsp = requests.get(target_url, stream=True)
+            rsp.raise_for_status()
+            out_path = os.path.join(out_dir, fname)
+            # Do not overwrite - instead start fresh when needed
+            if not os.path.exists(out_path):
+                logger.info(f"Downloading binary content from URL {target_url} to {out_path}.")
+                with open(out_path, 'wb') as out_file:
+                    shutil.copyfileobj(rsp.raw, out_file)
+        except Exception as exc:
+            logger.error(f"Failed to download binary content from URL {target_url}: {exc}")
     else:
         logger.warning(f"Extend download_url to handle mimetype {mime_type} content from URL {target_url} .")
 
