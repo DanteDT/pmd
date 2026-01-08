@@ -1,8 +1,8 @@
 # My Project .gitignore
-1851_pages/
 EPUB-*/
 chapters_*/
 css/
+extra_img*/
 extra_pmd/
 venv/
 /refactor*

@@ -45,27 +45,28 @@ html_fixes = {"&eacute;": "é",
               """Childe_Harold's_Pilgrimage'target=""": """Childe_Harold%27s_Pilgrimage" target=""",
 
               """<h1>Moby-Dick </h1>\n<h2>Front Matter</h2>""":
-              """<h1>Front Matter</h1>\n<h2>Etymology and Extracts</h2>
-   <div id="Page_Etymology">
-     <img class="full_page_image" src="images/cover-add-007-etym.jpg"/>
-   </div>
-   <div id="Page_Extracts">
-     <img class="full_page_image" src="images/cover-add-008-extr.jpg"/>
-   </div>
+              """<div id="Page_FrontMatter"><img class="full_page_image" src="images/cover-add-001-fm.jpg"/></div>
+    <h1>Front Matter</h1>\n<h2>Etymology and Extracts</h2>""",
 
-""",
+              """<p><i>page xxxv</i></p>""":
+              """<div id="Page_Dedication"><img class="full_page_image" src="images/cover-add-003-nh.jpg"/></div>
+    <p><i>page xxxv</i></p>""",
+
+              """<p><i>page xxxvii</i></p>""":
+              """<div id="Page_Etymology"><img class="full_page_image" src="images/cover-add-007-etym.jpg"/></div>
+    <p><i>page xxxvii</i></p>""",
+
+              """<p><i>page xxxix</i></p>""":
+              """<div id="Page_Extracts"><img class="full_page_image" src="images/cover-add-008-extr.jpg"/></div>
+    <p><i>page xxxix</i></p>""",
 
               "<h1>Chapter I</h1>\n<h2>Loomings</h2>": 
-              """<h1>Chapter I</h1>\n<h2>Loomings</h2>
-   <div id="Page_Loomings">
-     <img class="full_page_image" src="images/cover-add-009-loom.jpg"/>
-   </div>""",
+              """<div id="Page_Loomings"><img class="full_page_image" src="images/cover-add-009-loom.jpg"/></div>
+   <h1>Chapter I</h1>\n<h2>Loomings</h2>""",
 
               """<h1>Epilogue</h1>\n<h2>\xa0</h2>""": 
-              """<h1>CXXXVI. Epilogue</h1>\n<h2> </h2>
-   <div id="Page_Epilogue">
-     <img class="full_page_image" src="images/cover-back-000-epil.jpg"/>
-   </div>""",
+              """<div id="Page_Epilogue"><img class="full_page_image" src="images/cover-back-000-epil.jpg"/></div>
+   <h1>CXXXVI. Epilogue</h1>\n<h2> </h2>""",
 
               """href='http://translate.google.com/translate?hl=en&sl=de&u=http://de.wikipedia.org/wiki/Alexander_Heimb%25C3%25BCrger&ei=IfXUSsb2BY63lAej7OGcCQ&sa=X&oi=translate&resnum=5&ct=result&ved=0CBgQ7gEwBA&prev=/search%3Fq%3D%2522Alexander%2BHeimb%25C3%25BCrger%2522%2B%2522herr%2Balexander%2522%26hl%3Den'""":
 """href='https://de-wikipedia-org.translate.goog/wiki/Alexander_Heimb%C3%BCrger?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp' """,

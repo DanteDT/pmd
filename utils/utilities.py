@@ -3,6 +3,7 @@ import logging
 import mimetypes
 import os
 import requests
+import re
 import shutil
 import sys
 
@@ -19,15 +20,15 @@ image_ext = {"image/bmp" : "bmp",
              "image/jpeg": "jpg",
              "image/png" : "png"}
 
-def init_logger () -> logging.Logger:
-    ''' initialize a basic logger for the calling module '''
+def init_logger (level=logging.INFO) -> logging.Logger:
+    ''' initialize a basic logger for the calling module. Default level is INFO '''
     logfile = Path(os.path.basename(sys.argv[0])).stem
     logfile = ".".join(["-".join(["log", logfile]), "log"])
 
     if os.path.exists(logfile):
         os.remove(logfile)
 
-    logging.basicConfig(level=logging.INFO, 
+    logging.basicConfig(level=level, 
                         filename=logfile, 
                         format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
@@ -104,6 +105,15 @@ def download_url(target_url: str, out_dir=".", fname=""):
     else:
         logger.warning(f"Extend download_url to handle mimetype {mime_type} content from URL {target_url} .")
 
+# Function to simplify text for searching
+def simplify_text(text) -> str:
+    """Simplify text by removing tags, whitespace, and punctuation for searching."""
+    text = re.sub(r'<[^>]+>', ' ', text)  # remove tags
+    text = re.sub(r'\s+', '', text)       # remove whitespace
+    text = re.sub(r'[^a-zA-Z]', '', text) # leave only alpha characters
+    text = text.lower()                   # convert to lowercase
+    return text
+
 def insert_custom_images(chap_num: int, html: str, insertions: list[dict]) -> tuple[list, str]:
     """ Insert custom images into HTML content based on insertion instructions.
 
@@ -122,6 +132,9 @@ def insert_custom_images(chap_num: int, html: str, insertions: list[dict]) -> tu
         img_file = insertion.get("img-file")
         juxtaposition = insertion.get("juxtaposition", "center").lower()
         anchor_text = insertion.get("anchor-text", "")
+
+        # Simplify anchor text for searching
+        anchor_text = simplify_text(anchor_text)
 
         anchor = soup.find(string=lambda text: text and anchor_text in text)
         if anchor:

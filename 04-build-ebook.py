@@ -40,7 +40,7 @@ IMG_DIR   = os.path.join(OEB_DIR, config_data["epub_dirs"]["img_dir"])
 chapters = ['<li><a href="ca-001.xhtml">Cover 1851</a></li>',
             '        <li><a href="ca-002.xhtml">Front pages 1851</a></li>',
             '        <li><a href="ca-003.xhtml">Notes from the editor</a></li>',
-            '        <li><a href="toc.xhtml">Table of Contents</a></li>'
+            '        <li><a href="toc.xhtml">Contents.</a></li>'
            ]
 opf_mani = ['<item id="ca-001" href="ca-001.xhtml" media-type="application/xhtml+xml" properties="svg"/>', 
             '    <item id="ca-002" href="ca-002.xhtml" media-type="application/xhtml+xml" properties="svg"/>',
@@ -80,7 +80,7 @@ for fname in os.listdir(XHTML_SRC):
         chapter_number = int(fname.replace("chapter_", "").replace(".xhtml", ""))
 
         # For debugging
-        if debugging and chapter_number != 139:
+        if debugging and chapter_number != 0:
             continue
 
         with open(os.path.join(XHTML_SRC, fname), "r", encoding="utf-8") as f:
@@ -106,31 +106,60 @@ for fname in os.listdir(XHTML_SRC):
                 h2_tags = h1_tag.find_next_siblings("h2")
 
                 if not h2_tags:
-                    # No Subtitles, only the Chapter entry for this chapter
+                    # No Subtitles, only the Chapter entry for PMD "chapters" like 137 through 150
                     toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a></li>'
-                    logger.info(f'Created Title-only TOC entry for {fname}.')
+                    logger.info(f'Created Title-only TOC entry for {fname}, from title "{ttl}".')
                 else:
+                    # Handle custom TOC entry cases for PMD chapters, below.
+                    # Case-insensitive comparison, while preserving original PMD casing in toc_entry
                     len_h2_tags = len(h2_tags)
 
                     if len_h2_tags == 1:
                         sttlcnt += 1
                         subtitle = h2_tags[0].get_text().strip().title()
-                        # Only one Subtitle, collapse as suffix to Title
                         if subtitle:
-                            toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl} - {subtitle}</a></li>'
+                            # Exactly one Subtitle for most PMD chapters, 1 through 135
+                            # Handle custom TOC entry cases for PMD chapter
+                            # 1:   I. - LOOMINGS.
+                            if ttl.upper() == "I." and subtitle.upper() == "LOOMINGS.":
+                                toc_entry += f'{extra_br}        <li><a href="{fname}#Page_Loomings">{ttl} - {subtitle}</a></li>'
+                            else:
+                                toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl} - {subtitle}</a></li>'
+                            logger.info(f'Created Title - Subtitle TOC entry for {fname}, from title "{ttl}" and "{subtitle}".')
                         else:
-                            toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a></li>'
-                        logger.info(f'Created Title - Subtitle TOC entry for {fname}.')
+                            # Title only, empty H2 Subtitle tag, for Epilogue chapter 136
+                            # Handle custom TOC entry cases for PMD chapter
+                            # 136: CXXXVI. EPILOGUE.
+                            if ttl.upper() == "CXXXVI. EPILOGUE.":
+                                toc_entry += f'{extra_br}        <li><a href="{fname}#Page_Epilogue">{ttl}</a></li>'
+                            else:
+                                toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a></li>'
+                            logger.info(f'Created Title-only TOC entry for {fname}, from title "{ttl}" and "{subtitle}".')
                     else:
-                        # Multiple Subtitle sections. Nest the subtitles within the EPUB TOC Title entry
-                        toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a><ol class="nav-toc">'
+                        # Multiple Subtitle sections. Nest the subtitles in PMD front-matter "chapter" 0
+                        # 0:   (H1)FRONT MATTER., (H2)ETYMOLOGY AND EXTRACTS., (H2)ETYMOLOGY., (H2)EXTRACTS.
+                        if ttl.upper() == "FRONT MATTER.":
+                            ttl = "Front Matter."
+                            toc_entry += f'{extra_br}        <li><a href="{fname}#Page_FrontMatter">{ttl}</a><ol class="nav-toc">'
+                        else:
+                            toc_entry += f'{extra_br}        <li><a href="{fname}#title_{ttlcnt:03d}">{ttl}</a><ol class="nav-toc">'
+
                         for h2_tag in h2_tags:
                             sttlcnt += 1
                             subtitle = h2_tag.get_text().strip().title()
                             if subtitle:
-                                toc_entry += f'\n            <li><a href="{fname}#subtitle_{sttlcnt:03d}">{subtitle}</a></li>'
+                                if ttl.upper() == "FRONT MATTER.":
+                                    if subtitle.upper() == "ETYMOLOGY AND EXTRACTS.":
+                                        subtitle = "Dedication."
+                                        toc_entry += f'\n            <li><a href="{fname}#Page_Dedication">{subtitle}</a></li>'
+                                    elif subtitle.upper() == "ETYMOLOGY.":
+                                        toc_entry += f'\n            <li><a href="{fname}#Page_Etymology">{subtitle}</a></li>'
+                                    elif subtitle.upper() == "EXTRACTS.":
+                                        toc_entry += f'\n            <li><a href="{fname}#Page_Extracts">{subtitle}</a></li>'
+                                else:
+                                    toc_entry += f'\n            <li><a href="{fname}#subtitle_{sttlcnt:03d}">{subtitle}</a></li>'
                         toc_entry += '\n        </ol></li>'
-                        logger.info(f'Created Title TOC with nested Subtitle entry for {fname}.')
+                        logger.info(f'Created Title nested Subtitle TOC entries for {fname}.')
 
         chapters.append(toc_entry)
 
@@ -155,9 +184,9 @@ opf_mani.append('    <item id="license" href="license.xhtml" media-type="applica
 opf_mani.append('    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
 opf_mani.append('    <item id="cz-001" href="cz-001.xhtml" media-type="application/xhtml+xml" properties="svg"/>')
 
-# Do not add navigation doc to spine
 opf_spin.append('    <itemref idref="license"/>')
 opf_spin.append('    <itemref idref="cz-001"/>')
+# Do not add navigation doc to spine
 # opf_spin.append('    <itemref idref="nav"/>')
 
 # 3. Copy CSS from CSS_SRC to CSS_DIR in EPUB_DIR
@@ -252,25 +281,18 @@ def write_nav_xhtml (dest="nav") -> int:
     if dest != "nav":
         nav_id="toc"
         head='''<head>
-        <title>Table of Contents</title>
+        <title>Contents</title>
         <link type="text/css" rel="stylesheet" href="css/mobydick.css"/>
     </head>'''
-        toc_top='''<div><a href="http://www.powermobydick.com/">
-            <img class="center_img" src="images/PowerMobyDickLogo.jpg"/>
-        </a></div>'''
-        toc_end='''<div><figure>
-        <a href="http://www.powermobydick.com/"><img class="center_img" src="images/mobydicklightlowres.jpg"/></a>
-        <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a>.</h2>
-        </figure></div>
-        <div id="Title_00004">
-            <img class="full_page_image" src="images/cover-add-004-toc.jpg"/>
-        </div>
-        <div id="Title_00005">
-            <img class="full_page_image" src="images/cover-add-005-toc.jpg"/>
-        </div>
-        <div id="Title_00006">
-            <img class="full_page_image" src="images/cover-add-006-md.jpg"/>
+        toc_top='''<div id="Title_00004"><img class="full_page_image" src="images/cover-add-004-toc.jpg"/></div>
+        <div id="Title_00005"><img class="full_page_image" src="images/cover-add-005-toc.jpg"/></div>
+        <div>
+          <a href="http://www.powermobydick.com/"><img class="center_img" src="images/PowerMobyDickLogo.jpg"/></a>
         </div>'''
+        toc_end='''<div><figure>
+          <a href="http://www.powermobydick.com/"><img class="center_img" src="images/mobydicklightlowres.jpg"/></a>
+          <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a>.</h2>
+        </figure></div>'''
 
     nav_xhtml = f'''<?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE html>
@@ -278,7 +300,7 @@ def write_nav_xhtml (dest="nav") -> int:
     {head}
     <body>
         {toc_top}
-        <h1>Table of Contents</h1>
+        <h1>Contents.</h1>
         <ol class="nav-toc">
             {"\n".join([entry for entry in chapters])}
         </ol>

@@ -10,7 +10,7 @@ debugging = config_data["exe_mode"]["debugging"]
 
 # Source Folders
 CHAPTER_SRC = config_data["proj_dirs"]["ch_patched"]  # patched HTML chapters
-EXTRA_IMG   = config_data["proj_dirs"]["extra_img"]     # custom images for EPUB
+EXTRA_IMG   = config_data["proj_dirs"]["extra_img"]   # custom images for EPUB
 CSS_SRC     = config_data["proj_dirs"]["custom_dir"]  # CSS source for EPUB
 CSS_BOOK    = config_data["epub_dirs"]["css_dir"]     # path for CSS in EPUB
 CSS_FILES   = sorted(os.listdir(CSS_SRC))
@@ -22,7 +22,7 @@ OUTPUT_DIR = config_data["proj_dirs"]["ch_xhtml"]     # output XHTML
 # - img-file: filename of the image to insert (assumed to be in 'images/' directory)
 # - juxtaposition: where to insert the image ('left', 'right', 'center')
 # - anchor-text: Book text used to locate insertion point
-with open(os.path.join(EXTRA_IMG, "insert_img.csv"), encoding="utf-8") as img_csv:
+with open(os.path.join(EXTRA_IMG, "insert_extra_img.csv"), encoding="utf-8") as img_csv:
     image_insertions = []
     reader = csv.DictReader(img_csv)
     for row in reader:
