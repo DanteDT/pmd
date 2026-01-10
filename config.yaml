@@ -7,7 +7,7 @@ proj_dirs:
   css_dir:    "css"
   custom_dir: "custom"
   img_dir:    "images"
-  custom_img: "custom_img" # for custom images to insert into EPUB according to insert_img.csv
+  custom_img: "custom_img_sm" # for custom images to insert into EPUB according to insert_img.csv
 epub_dirs:
   book_dir:   "EPUB-{}" # {}, for separate epub for footnotes and hyperlinks
   meta_dir:   "META_INF"

@@ -295,10 +295,6 @@ def write_nav_xhtml (dest="nav") -> int:
           <a href="http://www.powermobydick.com/"><img class="center_img" src="images/PowerMobyDickLogo.jpg"/></a>
         </div>'''
         toc_end='''<div><figure>
-          <img class="center_img" src="images/chapTOC_img001.jpg"/>
-        </figure></div>
-        <br/>
-        <div><figure>
           <a href="http://www.powermobydick.com/"><img class="center_img" src="images/mobydicklightlowres.jpg"/></a>
           <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a>.</h2>
         </figure></div>'''
