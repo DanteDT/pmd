@@ -43,12 +43,17 @@ If you can demonstrate WORKING, or WORKING/CONFORMANT Popup Footnotes or TOC Nav
 
 To customize your own edition, consider the [config.yaml](config.yaml) setting `debugging: True` to focus a debugging session. The setting `epub_ref: "foot"` produces the Footnote editions; `epub_ref: "link"` produces the hyperlink edition.
 
-### Recognition and attribution
+### Recognition, appreciation and attribution
 
 With respect and gratitude for Herman and Margaret. ❤️
 * Moby-Dick by Herman Melville is in the public domain.
 * All notes in Power Moby-Dick: The Online Annotation copyright 2008 by Margaret Guroff.
 * Rendered and released here to common e-book formats with permission.
+
+[Standard Ebooks](https://standardebooks.org/about/standard-ebooks-and-the-public-domain) share a beautiful, inspiring sentiment: 
+```
+"The public domain is a priceless resource for all of us, and for the generations after us. It’s a free repository of our culture going back centuries—a way for us to see where we came from and to chart where we’re going. It represents our collective cultural heritage."
+```
 
 This is what I can offer.
 
