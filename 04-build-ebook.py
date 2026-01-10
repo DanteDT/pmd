@@ -23,10 +23,11 @@ debugging = config_data["exe_mode"]["debugging"]
 epub_ref = config_data["exe_mode"]["epub_ref"]
 
 # Folders
-IMG_SRC   = config_data["proj_dirs"]["img_dir"]     # source images
-CSS_SRC   = config_data["proj_dirs"]["custom_dir"]  # Custom CSS for EPUB
+IMG_SRC   = config_data["proj_dirs"]["img_dir"]      # source images
+CSS_SRC   = config_data["proj_dirs"]["custom_dir"]   # Custom CSS for EPUB
 XHTML_SRC = config_data["proj_dirs"]["ch_xhtml"]
-CUSTOM_SRC= config_data["proj_dirs"]["custom_dir"]  # custom front and back matter
+CUSTOM_SRC= config_data["proj_dirs"]["custom_dir"]   # custom front and back matter
+CUSTOM_IMG= config_data["proj_dirs"]["custom_img"]   # custom images for EPUB
 
 # EPUB structure - separate releases for Footnotes and Hyperlinks
 EPUB_BOOK = config_data["epub_dirs"]["epub_book"].format(epub_ref)
@@ -200,15 +201,19 @@ for fname in os.listdir(CSS_SRC):
             f.write(css_content)
         opf_mani.append(f'    <item id="css_{cssidx:03d}" href="css/{fname}" media-type="text/css"/>')
 
-# 3. Copy images, jpg
-for fname in os.listdir(IMG_SRC):
-    if fname.endswith('.jpg'):
-        shutil.copy(os.path.join(IMG_SRC, fname), IMG_DIR)
-        if fname == "cover-a-001.jpg":
-            prop_cover='properties="cover-image"'
-        else:
-            prop_cover=""
-        opf_mani.append(f'    <item id="{fname.replace(".jpg", "")}" href="images/{fname}" media-type="image/jpeg" {prop_cover}/>')
+# 3. Copy images, jpg, from IMG_SRC and from CUSTOM_IMG to IMG_DIR in EPUB_DIR
+for dirpath in [IMG_SRC, CUSTOM_IMG]:
+    for fname in os.listdir(dirpath):
+        if fname.endswith('.jpg'):
+            try:
+                shutil.copy(os.path.join(dirpath, fname), IMG_DIR)
+                if fname == "cover-a-001.jpg":
+                    prop_cover='properties="cover-image"'
+                else:
+                    prop_cover=""
+                opf_mani.append(f'    <item id="{fname.replace(".jpg", "")}" href="images/{fname}" media-type="image/jpeg" {prop_cover}/>')
+            except Exception as exc:
+                logger.error(f"Failed to copy image {fname} from {dirpath} to EPUB images: {exc}")
 
 # 4. Create mimetype (must be uncompressed)
 with open(f"{EPUB_DIR}/mimetype", "w", encoding="utf-8") as f:
@@ -290,6 +295,10 @@ def write_nav_xhtml (dest="nav") -> int:
           <a href="http://www.powermobydick.com/"><img class="center_img" src="images/PowerMobyDickLogo.jpg"/></a>
         </div>'''
         toc_end='''<div><figure>
+          <img class="center_img" src="images/chapTOC_img001.jpg"/>
+        </figure></div>
+        <br/>
+        <div><figure>
           <a href="http://www.powermobydick.com/"><img class="center_img" src="images/mobydicklightlowres.jpg"/></a>
           <h2>Visit <a href="http://www.powermobydick.com/">Power Moby Dick</a>.</h2>
         </figure></div>'''
@@ -340,10 +349,12 @@ with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
             arc_path = os.path.join("OEBPS", os.path.relpath(full_path, OEB_DIR))
             epub.write(full_path, arc_path)
 
+# Book created
+logger.info(f"EPUB created: {EPUB_BOOK}")
+
 # pyresult.valid for log
 pyresult = EpubCheck(EPUB_BOOK)
 
-logger.info(f"EPUB created: {EPUB_BOOK}")
 if pyresult.valid:
     logger.info("EpubCheck validation SUCCESS!")
 else:

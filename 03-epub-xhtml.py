@@ -1,3 +1,4 @@
+import logging
 import csv
 from bs4 import BeautifulSoup
 import os
@@ -5,12 +6,15 @@ import utils.utilities as utl
 import utils.config as config
 
 logger = utl.init_logger()
+# logger = utl.init_logger(level=logging.DEBUG)
+
+
 config_data = config.load_config()
 debugging = config_data["exe_mode"]["debugging"]
 
 # Source Folders
 CHAPTER_SRC = config_data["proj_dirs"]["ch_patched"]  # patched HTML chapters
-EXTRA_IMG   = config_data["proj_dirs"]["extra_img"]   # custom images for EPUB
+CUSTOM_IMG  = config_data["proj_dirs"]["custom_img"]  # custom images for EPUB
 CSS_SRC     = config_data["proj_dirs"]["custom_dir"]  # CSS source for EPUB
 CSS_BOOK    = config_data["epub_dirs"]["css_dir"]     # path for CSS in EPUB
 CSS_FILES   = sorted(os.listdir(CSS_SRC))
@@ -22,14 +26,14 @@ OUTPUT_DIR = config_data["proj_dirs"]["ch_xhtml"]     # output XHTML
 # - img-file: filename of the image to insert (assumed to be in 'images/' directory)
 # - juxtaposition: where to insert the image ('left', 'right', 'center')
 # - anchor-text: Book text used to locate insertion point
-with open(os.path.join(EXTRA_IMG, "insert_extra_img.csv"), encoding="utf-8") as img_csv:
-    image_insertions = []
+with open(os.path.join(CUSTOM_IMG, "custom_img_locations_final.csv"), encoding="utf-8") as img_csv:
+    custom_img_locations = []
     reader = csv.DictReader(img_csv)
     for row in reader:
-        image_insertions.append(row)
+        custom_img_locations.append(row)
 
 # make image_insertions a global object, accessible to utilities
-utl.image_insertions = image_insertions
+utl.custom_img_locations = custom_img_locations
 
 # Fresh start, unless debugging
 if not debugging:
@@ -87,16 +91,17 @@ def make_epub_xhtml(chapter_html: str, chapter_number: int, css_files=None, imag
     body_tag = xhtml.new_tag("body")
     html_tag.append(body_tag)
 
-    # Insert custom images into HTML
-    image_insertions, chapter_html = utl.insert_custom_images(chapter_number, chapter_html, image_insertions)
+    # Insert custom images into HTML, added later to body tag in xhtml
+    image_insertions, chapter_html = utl.insert_custom_images(chapter_number, chapter_html, 
+                                                              img_dir=CUSTOM_IMG, img_instructions=image_insertions)
 
-    # Insert the cleaned chapter content into body
+    # Insert the cleaned chapter content into body tag of xhtml
     chapter_soup = BeautifulSoup(chapter_html, "html.parser")
     for elem in list(chapter_soup.contents):
         body_tag.append(elem)
 
     # Return string representation (XHTML)
-    return xhtml.prettify()
+    return image_insertions, xhtml.prettify()
 
 for fname in sorted(os.listdir(CHAPTER_SRC)):
     if not fname.endswith(".html"):
@@ -104,7 +109,7 @@ for fname in sorted(os.listdir(CHAPTER_SRC)):
     number = int(fname.replace("chapter-", "").replace(".html", ""))
 
     # For debugging specific chapters or ranges
-    if debugging and number != 150:
+    if debugging and number != 8:
         logger.info(f"Skipping chapter {number:03d} in debugging mode.")
         continue
     else:
@@ -113,8 +118,8 @@ for fname in sorted(os.listdir(CHAPTER_SRC)):
     with open(os.path.join(CHAPTER_SRC, fname), encoding="utf-8") as fp:
         html = fp.read()
 
-    # Wrap in EPUB XHTML
-    xhtml = make_epub_xhtml(html, number, css_files=CSS_FILES, image_insertions=image_insertions)
+    # Wrap in EPUB XHTML, update image insertions with locations of any inserted images
+    custom_img_locations, xhtml = make_epub_xhtml(html, number, css_files=CSS_FILES, image_insertions=custom_img_locations)
 
     # Save
     out_fname = f"chapter_{number:03d}.xhtml"
@@ -123,11 +128,12 @@ for fname in sorted(os.listdir(CHAPTER_SRC)):
     logger.info(f"Saved {out_fname}")
 
 # Final log of image insertions, overwrite any prior, alongside insert_img.csv
-with open(os.path.join(EXTRA_IMG, "log_insert_img.csv"), "w", encoding="utf-8", newline='') as log_csv:
-    fieldnames = ["img-file", "juxtaposition", "anchor-text", "chapters"]
+with open(os.path.join(CUSTOM_IMG, "log_insert_img.csv"), "w", encoding="utf-8", newline='') as log_csv:
+    fieldnames = ["text_file","img_name","img_rename","chapter","target_chapter","location",
+                  "preceding_text","following_text","preceding_simp","following_simp","chapters"]
     writer = csv.DictWriter(log_csv, fieldnames=fieldnames)
     writer.writeheader()
-    for insertion in image_insertions:
+    for insertion in custom_img_locations:
         writer.writerow(insertion)
 
 logger.info("SUCCESS.")

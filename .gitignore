@@ -1,7 +1,8 @@
 # My Project .gitignore
-EPUB-*/
 chapters_*/
 css/
+custom_img/
+EPUB-*/
 extra_img*/
 extra_pmd/
 venv/

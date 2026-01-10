@@ -53,8 +53,8 @@ for topic, files in mtx_by_file.items():
         unicnt[topic] += len(filenames)
 
 # Write to log file
-log1_path = Path(r"rpt_ext_by_filename.log")
-log2_path = Path(r"rpt_ext_by_resource.log")
+log1_path = Path(r"log-rpt_ext_by_filename.log")
+log2_path = Path(r"log-rpt_ext_by_resource.log")
 with open(log1_path, 'w', encoding='utf-8') as log:
     log.write(f"External URLs Found in XHTML Files\n")
     log.write(f"Logged external resources from {fncount} files:\n -  URLs ({counts['URLs']})\n - OnClick ({counts['OnClick']})\n - JavaScript ({counts['JavaScript']}).\n")

@@ -2,6 +2,7 @@
 import logging
 import mimetypes
 import os
+import os.path as osp
 import requests
 import re
 import shutil
@@ -22,10 +23,10 @@ image_ext = {"image/bmp" : "bmp",
 
 def init_logger (level=logging.INFO) -> logging.Logger:
     ''' initialize a basic logger for the calling module. Default level is INFO '''
-    logfile = Path(os.path.basename(sys.argv[0])).stem
+    logfile = Path(osp.basename(sys.argv[0])).stem
     logfile = ".".join(["-".join(["log", logfile]), "log"])
 
-    if os.path.exists(logfile):
+    if osp.exists(logfile):
         os.remove(logfile)
 
     logging.basicConfig(level=level, 
@@ -36,7 +37,7 @@ def init_logger (level=logging.INFO) -> logging.Logger:
     return logger
 
 def init_dir(DIR:str) -> int:
-    if os.path.isdir(DIR):
+    if osp.isdir(DIR):
         shutil.rmtree(DIR)
         logger.info(f"Removed {DIR} for fresh start.")
     os.makedirs(DIR, exist_ok=True)
@@ -55,7 +56,7 @@ def fetch_html(url: str) -> str:
 
 def download_url(target_url: str, out_dir=".", fname=""):
     if not fname:
-        fname = os.path.basename(target_url)
+        fname = osp.basename(target_url)
 
     mime_type, encoding = mimetypes.guess_type(target_url)
 
@@ -63,9 +64,9 @@ def download_url(target_url: str, out_dir=".", fname=""):
         ''' Download to same filetype '''
         try:
             url_text = fetch_html(target_url)
-            url_file = os.path.join(out_dir, fname)
+            url_file = osp.join(out_dir, fname)
             # Do not overwrite - instead start fresh when needed
-            if not os.path.exists(url_file):
+            if not osp.exists(url_file):
                 logger.info(f"Downloading URL: {target_url}")
                 with open(url_file, "w", encoding="utf-8") as fp:
                     fp.write(url_text)
@@ -80,9 +81,9 @@ def download_url(target_url: str, out_dir=".", fname=""):
             try:
                 image = Image.open(BytesIO(rsp.content))
                 imgext = image_ext.get(image.get_format_mimetype())
-                img_name = os.path.join(out_dir, f"{fname}.{imgext}")
+                img_name = osp.join(out_dir, f"{fname}.{imgext}")
                 # Do not overwrite - instead start fresh when needed
-                if not os.path.exists(img_name):
+                if not osp.exists(img_name):
                     logger.info(f"Downloading image {img_name} from {target_url}.")
                     image.save(img_name)
             except IOError:
@@ -94,9 +95,9 @@ def download_url(target_url: str, out_dir=".", fname=""):
         try:
             rsp = requests.get(target_url, stream=True)
             rsp.raise_for_status()
-            out_path = os.path.join(out_dir, fname)
+            out_path = osp.join(out_dir, fname)
             # Do not overwrite - instead start fresh when needed
-            if not os.path.exists(out_path):
+            if not osp.exists(out_path):
                 logger.info(f"Downloading binary content from URL {target_url} to {out_path}.")
                 with open(out_path, 'wb') as out_file:
                     shutil.copyfileobj(rsp.raw, out_file)
@@ -114,48 +115,108 @@ def simplify_text(text) -> str:
     text = text.lower()                   # convert to lowercase
     return text
 
-def insert_custom_images(chap_num: int, html: str, insertions: list[dict]) -> tuple[list, str]:
+def insert_custom_images(chap_num: int, html: str, img_dir: str, img_instructions: list[dict]) -> tuple[list, str]:
     """ Insert custom images into HTML content based on insertion instructions.
 
     Args:
         html (str): Original HTML content.
-        insertions (list[dict]): List of insertion instructions, each dict containing:
-            - 'img-file': filename of the image to insert (assumed to be in 'images/' directory)
-            - 'juxtaposition': where to insert the image ('left', 'right', 'center')
-            - 'anchor-text': Book text used to locate insertion point
+        img_instructions (list[dict]): List of insertion instructions, each dict containing:
+            - text_file: (ignore, original text reference)
+            - img_name: (ignore, original image name)
+            - img_rename: image to place in XHTML
+            - chapter: chapter number, to filter to the images to insert
+            - target_chapter: xhtml into which to insert image
+            - location: TOP, MID, BOTTOM location in HTML to place image
+            - preceding_text: original text preceding image
+            - following_text: original text following image
+            - preceding_simp: simplified text preceding image, used to match original text reference to target text
+            - following_simp: simplified text following image, used to match original text reference to target text
     Returns:
-        list: Updated insertions, "chapters" key added with chapter number.
+        list: Updated img_instructions, "chapters" key added with chapter numbers where image was inserted.
         str: Modified HTML content with images inserted. """
     soup = BeautifulSoup(html, "html.parser")
 
-    for insertion in insertions:
-        img_file = insertion.get("img-file")
-        juxtaposition = insertion.get("juxtaposition", "center").lower()
-        anchor_text = insertion.get("anchor-text", "")
+    for insertion in img_instructions:
+        target_chap_num = int(insertion.get("chapter"))
+        if target_chap_num != chap_num:
+            continue  # Skip if not for this chapter
+        else:
+            logger.debug(f"Processing image insertion for chapter {chap_num}, image {insertion.get('img_rename')}.")
 
-        # Simplify anchor text for searching
-        anchor_text = simplify_text(anchor_text)
+        img_file = insertion.get("img_rename")
+        location = insertion.get("location", "MID").upper()
+        preceding_text = insertion.get("preceding_text", "").strip().lower()
+        following_text = insertion.get("following_text", "").strip().lower()
+        preceding_simp = insertion.get("preceding_simp", "").strip().lower()
+        following_simp = insertion.get("following_simp", "").strip().lower()
 
-        anchor = soup.find(string=lambda text: text and anchor_text in text)
+        # Randomly align "narrow" images (width < 350 px)
+        # - left (class="left_img") or right (class="right_img"), if location is MID
+        # - otherwise center (class="center_img")
+        max_side_width = 350
+        img_class = "center_img"
+        if location == "MID":
+            # Decide left or right based on image width
+            img_path = osp.join(img_dir, img_file)
+            try:
+                with Image.open(img_path) as img:
+                    width, _ = img.size
+                    if width < max_side_width:
+                        img_class = "left_img" if (chap_num + hash(img_file)) % 2 == 0 else "right_img"
+            except Exception as exc:
+                logger.warning(f"Could not open image {img_path} to determine width: {exc}")
+
+            # ONLY for MID locations, search for adjacent text to find anchor point
+            anchor_text = {"img_loc": "before", "text": following_text} if following_text else {"img_loc": "after", "text": preceding_text}
+            anchor_text_simp = {"img_loc": "before", "text": following_simp} if following_simp else {"img_loc": "after", "text": preceding_simp}
+
+            for thistag in soup.find_all(['h1', 'h2', 'h3', 'p']):
+                anchor = None
+                tag_text = thistag.get_text(separator=" ", strip=True).strip().lower()
+                tag_text_simp = simplify_text(tag_text)
+
+                if anchor_text["text"] and anchor_text["text"] in tag_text:
+                    anchor = thistag
+                    break
+                elif anchor_text_simp["text"] and anchor_text_simp["text"] in tag_text_simp:
+                    anchor = thistag
+                    break
+        else:
+            # For TOP or BOTTOM locations:
+            # Chapters are divided into TWO MAIN <DIV> sections: Text and optional Footnotes
+            # - Search the FIRST tag of First <DIV> for TOP image anchors
+            # - Use the last h1/h2/p of First <DIV> for BOTTOM image anchors
+            first_div = soup.find('div')
+            if location == "TOP":
+                anchor_text = {"img_loc": "before", "text": following_text}
+                anchor_text_simp = {"img_loc": "before", "text": following_simp}
+                anchor = first_div.find(['h1', 'h2', 'p']) if first_div else []
+            elif location == "BOTTOM":
+                anchor_text = {"img_loc": "after", "text": preceding_text}
+                anchor_text_simp = {"img_loc": "after", "text": preceding_simp}
+                all_tags = first_div.find_all(['h1', 'h2', 'p', 'div']) if first_div else []
+                anchor = all_tags[-1] if all_tags else None
+            else:
+                anchor = None
+
         if anchor:
             img_tag = soup.new_tag("img", src="/".join(["images", img_file]))
-            if juxtaposition == "left":
-                img_tag['class'] = "left_img"
-            elif juxtaposition == "right":
-                img_tag['class'] = "right_img"
+            img_tag['class'] = img_class
+
+            # Insert the image tag as a sibling to the anchor tag, before or after as specified
+            if anchor_text["img_loc"] == "after":
+                anchor.insert_after(img_tag)
             else:
-                img_tag['class'] = "center_img"
+                anchor.insert_before(img_tag)
 
-            # Insert the image tag before the anchor text
-            anchor_parent = anchor.parent
-            anchor_parent.insert_before(img_tag)
-
-            # Update this record in insertions, to add this chapter number
+            # Up date this record in insertions, to add this chapter number to the insertion tracker
             insertion['chapters'] = insertion.get('chapters', []) + [chap_num]
 
             # Log the insertion
-            logger.info(f"Inserted image {img_file} at anchor text '{anchor_text}' with juxtaposition '{juxtaposition}'.")
+            logger.info(f"Inserted image {img_file} {anchor_text['img_loc']} anchor text '{anchor_text['text']}' with location '{location}'.")
         else:
-            continue
+            logger.warning(f"NO LOCATION for image {img_file} in chapter {chap_num}.")
+            logger.warning(f":=-- Using anchor text '{anchor_text['text']}'.")
+            logger.warning(f":=-- Using simple text '{anchor_text_simp['text']}'.")
 
-    return insertions, str(soup)
+    return img_instructions, str(soup)
