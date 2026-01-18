@@ -51,9 +51,7 @@ With respect and gratitude for Herman and Margaret. ❤️
 * Rendered and released here to common e-book formats with permission.
 
 [Standard Ebooks](https://standardebooks.org/about/standard-ebooks-and-the-public-domain) share a beautiful, inspiring sentiment: 
-```
-"The public domain is a priceless resource for all of us, and for the generations after us. It’s a free repository of our culture going back centuries—a way for us to see where we came from and to chart where we’re going. It represents our collective cultural heritage."
-```
+>"The public domain is a priceless resource for all of us, and for the generations after us. It’s a free repository of our culture going back centuries—a way for us to see where we came from and to chart where we’re going. It represents our collective cultural heritage."
 
 This is what I can offer.
 
