@@ -31,7 +31,7 @@ Due to unreliable support for these two essential e-book features by device manu
 * the **footnote** release (popup footnotes 😃), or
 * the **hyperlink** release (functional yet disruptive links back-and-forth between main text and footnotes 😒)
 
-Why is it so hard for device manufacturers and app developers to get this right? I don't know. People get [hard stuff right](https://home.cern/news/news/accelerators/hie-isolde-10-years-10-highlights) all the time.
+Why is it so hard for device manufacturers and app developers to get this right? I don't know. People get [hard stuff right](https://home.cern/news/news/accelerators/hie-isolde-10-years-10-highlights) all the time, when they want to.
 
 ### Use and Contribute
 Suggestions are welcome to improve the annotated Moby-Dick reading experience. Something not work on your e-reader? Please report it.
