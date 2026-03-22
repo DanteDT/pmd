@@ -1,6 +1,6 @@
 ## Footnotes 😃 vs. Hyperlinks 😒
 
-Popup [footnotes](https://www.w3.org/TR/epub-ssv-11/#notes) ensure a great, seamless reading experience.
+Popup [footnotes](https://www.w3.org/TR/epub-ssv-11/#notes), from [EPUB 3.3](https://www.w3.org/TR/epub-ssv-11/), ensure a great, seamless reading experience.
 
 Unfortunately, e-reader devices and apps don't reliably deliver these.
 
