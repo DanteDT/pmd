@@ -17,10 +17,10 @@ With front/back material from a [scanned, signed first-edition from the Internet
 
 ## Very brief overview of the ebook assembly workflow
 1. Scrape PMD TOC and Chapters
-2. Basic HTML clean up, then some deep cleaning and patching to improve the e-reader experience
+2. Clean up HTML, then organize and markup to improve the e-reader experience (Popup footnotes! See below.)
 3. Prep the EPUB content, XHTML chapters
 4. Build the EPUB - an edition that uses epub footnotes, and an edition that uses hyperlinks. See below.
-5. Periodically check for updated annotations
+5. Check preiodically for updated annotations
 
 I test on ebook readers that I have used for a long time, without trying harder for more common devices or apps :
 * Windows 11, [Calibre ebook reader, validator and builder](https://calibre-ebook.com/) ❤️
