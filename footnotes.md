@@ -7,7 +7,7 @@ Unfortunately, e-reader devices and apps don't reliably deliver these.
 **Hyperlinks** is a lesser alternative, for readers to access non-linear content that is separate from the main text -- like footnotes and endnotes.
 
 * Links force the reader to jump around the content - a disruptive, sub-optimal reading experience.
-* Some e-book publishers use hyperlinks; some e-readers convert footnotes to hyperlinks.
+* Some ebook publishers use hyperlinks; some e-readers convert footnotes to hyperlinks.
 * Both approaches seem like unfortunate decisions to deliver disruptive, sub-optimal reading experiences.
 
 ### Spotty popup support by device manufacturers and app developers

@@ -32,7 +32,7 @@ Unfortunately, ebook readers (devices and apps) support TOC Navigation and Footn
 
 To keep this overview minimal, I address these technical topics in:
 * [TOC navigation](navigation.md), and
-* [Footnotes](footnotes.md), and [Endnotes](endnotes.md)
+* [Footnotes](footnotes.md) and endnotes.
 
 Due to unreliable support for these two essential ebook features by device manufacturers and app developers, your ebook reader may work better with
 * the **footnote** release (popup footnotes and endnotes 😃), or
