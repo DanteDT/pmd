@@ -183,7 +183,7 @@ for fname in os.listdir(CUSTOM_SRC):
       shutil.copy(os.path.join("custom", fname), OEB_DIR)
     logger.info(f"Copied custom file {fname} to EPUB {OEB_DIR}.")
 
-chapters.append('        <li><a href="license.xhtml">E-book license.</a></li>')
+chapters.append('        <li><a href="license.xhtml">Ebook license.</a></li>')
 chapters.append('        <li><a href="cz-001.xhtml">Back pages and cover 1851.</a></li>')
 
 opf_mani.append('    <item id="license" href="license.xhtml" media-type="application/xhtml+xml"/>')
@@ -334,7 +334,7 @@ with zipfile.ZipFile(EPUB_BOOK, 'w') as epub:
     # mimetype must be first and uncompressed
     epub.write(f"{EPUB_DIR}/mimetype", "mimetype", compress_type=zipfile.ZIP_STORED)
 
-    # nav.xhtml with NAV property to same e-book destination
+    # nav.xhtml with NAV property to same ebook destination
     # epub.write(f"{OEB_DIR}/nav.xhtml", "OEBPS/nav.xhtml")
 
     # Add META-INF folder
