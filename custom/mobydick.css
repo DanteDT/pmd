@@ -38,6 +38,10 @@ h2.subtitle {
     font-size: 1em;
     margin-top: 0;
 }
+hr {
+    margin-top: 3em;
+    width: 67%;
+}
 /* Navigation - remove bullets, padding and margins */
 ol.nav-toc {
     list-style-type: none;

@@ -17,9 +17,9 @@ epub_dirs:
   img_dir:    "images"
   epub_book:  "Moby-Dick [Power, {}] - Herman Melville.epub" # {}, for separate epub for footnotes and hyperlinks
 exe_mode:
-  version:    "2026.01.10"
+  version:    "2026.03.22"
 # uuid:       "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  uuid:       "0abcdef0-2026-0104-0ba0-0dd003151967"
+  uuid:       "0abcdef0-2026-0322-0ba0-0dd003151967"
   debugging:  False
   epub_ref:   "foot" # foot or link. For e-readers that don't support epub:type="footnotes", use create <a> links.
 ext_resource:
