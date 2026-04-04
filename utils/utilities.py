@@ -223,7 +223,7 @@ def insert_custom_images(chap_num: int, html: str, img_dir: str, img_instruction
             except Exception as exc:
                 logger.warning(f"Could not open image {img_path} to determine width: {exc}")
 
-            if img_file.startswith("chapNH_"):
+            if img_file.startswith("chapNAT_"):
                 img_class = "center_img"  # Override to center for this specific Dedication image
 
             # ONLY for MID locations, search for adjacent text to find anchor point
